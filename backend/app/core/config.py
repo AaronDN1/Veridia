@@ -27,10 +27,11 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str
     stripe_price_id: str
     session_cookie_name: str = "sigma_solve_session"
+    beta_free_mode: bool = False
     storage_root: Path = STORAGE_ROOT
     upload_dir: Path = STORAGE_ROOT / "uploads"
     graphs_dir: Path = STORAGE_ROOT / "graphs"
-    free_daily_limit: int = 3
+    free_daily_limit: int = 20
 
     @field_validator("backend_cors_origins", mode="before")
     @classmethod

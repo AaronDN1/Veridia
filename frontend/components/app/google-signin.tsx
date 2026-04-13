@@ -65,8 +65,8 @@ export function GoogleSignIn() {
       <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" onLoad={() => setReady(true)} />
       <div className="space-y-4">
         <div id="google-signin-button" />
-        {loading && <p className="text-sm text-slate-500">Signing you in...</p>}
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {loading && <p className="text-sm text-slate-500 dark:text-slate-300">Signing you in...</p>}
+        {error && <p className="text-sm text-rose-600 dark:text-rose-300">{error}</p>}
       </div>
     </>
   );

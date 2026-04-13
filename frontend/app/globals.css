@@ -6,15 +6,42 @@
 
 :root {
   color-scheme: light;
+  --page-bg:
+    radial-gradient(circle at top left, rgba(57, 109, 255, 0.12), transparent 30%),
+    linear-gradient(180deg, #f8fbff 0%, #eef2f8 100%);
+  --text-color: #0d1321;
+  --panel-bg: rgba(255, 255, 255, 0.72);
+  --panel-border: rgba(255, 255, 255, 0.7);
+  --panel-shadow: 0 20px 60px rgba(13, 19, 33, 0.08);
+  --markdown-heading: #0d1321;
+  --markdown-body: #334155;
+  --inline-code-bg: #eff6ff;
+  --inline-code-text: #1e3a8a;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page-bg:
+    radial-gradient(circle at top left, rgba(57, 109, 255, 0.2), transparent 28%),
+    linear-gradient(180deg, #07111f 0%, #0d1726 55%, #101a2b 100%);
+  --text-color: #f8fafc;
+  --panel-bg: rgba(8, 15, 28, 0.74);
+  --panel-border: rgba(148, 163, 184, 0.16);
+  --panel-shadow: 0 24px 70px rgba(2, 6, 23, 0.45);
+  --markdown-heading: #f8fafc;
+  --markdown-body: #d6e0f0;
+  --inline-code-bg: rgba(37, 99, 235, 0.18);
+  --inline-code-text: #bfdbfe;
 }
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, rgba(57, 109, 255, 0.12), transparent 30%),
-    linear-gradient(180deg, #f8fbff 0%, #eef2f8 100%);
-  color: #0d1321;
+  background: var(--page-bg);
+  color: var(--text-color);
   font-family: var(--font-manrope), sans-serif;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
 }
 
 h1,
@@ -25,9 +52,9 @@ h3,
 }
 
 .glass-panel {
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 20px 60px rgba(13, 19, 33, 0.08);
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow);
   backdrop-filter: blur(18px);
 }
 
@@ -40,12 +67,12 @@ h3,
 .markdown-content h3,
 .markdown-content h4 {
   margin: 1.25rem 0 0.75rem;
-  color: #0d1321;
+  color: var(--markdown-heading);
 }
 
 .markdown-content p,
 .markdown-content li {
-  color: #334155;
+  color: var(--markdown-body);
   line-height: 1.9;
 }
 
@@ -57,7 +84,30 @@ h3,
 
 .markdown-content code {
   border-radius: 0.5rem;
-  background: #eff6ff;
+  background: var(--inline-code-bg);
   padding: 0.1rem 0.35rem;
-  color: #1e3a8a;
+  color: var(--inline-code-text);
+}
+
+.markdown-content pre {
+  overflow-x: auto;
+  border-radius: 1rem;
+  background: rgba(15, 23, 42, 0.95);
+  padding: 1rem;
+}
+
+.markdown-content .katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+.markdown-content .katex {
+  color: var(--markdown-heading);
+}
+
+.markdown-content .katex-error {
+  color: inherit;
+  font-family: inherit;
+  white-space: pre-wrap;
 }

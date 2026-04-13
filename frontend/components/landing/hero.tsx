@@ -14,18 +14,18 @@ export function Hero() {
     <section className="relative overflow-hidden px-6 pb-24 pt-16 lg:px-8 lg:pt-24">
       <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="space-y-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white/80 px-4 py-2 text-sm text-slate-700 shadow-soft">
+          <div className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white/80 px-4 py-2 text-sm text-slate-700 shadow-soft dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
             <BadgeCheck className="h-4 w-4 text-brand-500" />
-            Serious STEM help for students who need clarity, speed, and polish
+            Public Beta — features currently free
           </div>
 
           <div className="space-y-6">
-            <h1 className="max-w-4xl font-serif text-5xl leading-tight text-ink md:text-7xl">
-              Premium AI support for homework, lab reports, and graphing.
+            <h1 className="max-w-4xl font-serif text-5xl leading-tight text-ink dark:text-white md:text-7xl">
+              Focused AI support for homework, lab reports, and graphing.
             </h1>
-            <p className="max-w-2xl text-xl leading-9 text-slate-600">
-              Sigma Solve gives STEM students a cleaner, smarter workspace for asking hard questions, drafting strong
-              lab reports, and generating academic-quality graphs without paying premium-tool prices.
+            <p className="max-w-2xl text-xl leading-9 text-slate-600 dark:text-slate-300">
+              SigmaSolve gives STEM students a cleaner, smarter workspace for asking hard questions, drafting strong
+              lab reports, and generating academic-quality graphs in a product built around clarity instead of clutter.
             </p>
           </div>
 
@@ -43,7 +43,7 @@ export function Hero() {
 
           <div className="grid gap-4 pt-2">
             {highlights.map((item) => (
-              <div key={item} className="flex items-start gap-3 text-sm text-slate-700">
+              <div key={item} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
                 <div className="mt-1 h-2.5 w-2.5 rounded-full bg-accent" />
                 <p>{item}</p>
               </div>

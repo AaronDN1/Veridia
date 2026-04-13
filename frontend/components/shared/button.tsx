@@ -15,8 +15,8 @@ export function Button({ className, variant = "primary", ...props }: Props) {
         variant === "primary" &&
           "bg-ink text-white shadow-soft hover:-translate-y-0.5 hover:bg-slate-900",
         variant === "secondary" &&
-          "border border-white/20 bg-white/70 text-ink backdrop-blur hover:border-brand-100 hover:bg-white",
-        variant === "ghost" && "text-slate-200 hover:text-white",
+          "border border-white/20 bg-white/70 text-ink backdrop-blur hover:border-brand-100 hover:bg-white dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10",
+        variant === "ghost" && "text-slate-200 hover:text-white dark:text-slate-300 dark:hover:text-white",
         className
       )}
       {...props}

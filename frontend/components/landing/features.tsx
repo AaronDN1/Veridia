@@ -1,4 +1,4 @@
-import { BrainCircuit, ChartSpline, FileChartColumnIncreasing, ShieldCheck, UploadCloud, Wallet } from "lucide-react";
+import { BrainCircuit, ChartSpline, FileChartColumnIncreasing, ShieldCheck, Sparkles, UploadCloud } from "lucide-react";
 
 import { SectionHeading } from "@/components/shared/section-heading";
 
@@ -25,13 +25,13 @@ const features = [
   },
   {
     icon: ShieldCheck,
-    title: "Real plan enforcement",
-    body: "Free users get 3 total generations per day. Unlimited users bypass the limit with tracked subscription state."
+    title: "Stable beta guardrails",
+    body: "Public beta keeps the full feature set open while enforcing a clean 20-prompt daily cap per signed-in user."
   },
   {
-    icon: Wallet,
-    title: "Affordable premium access",
-    body: "Unlimited costs $5/month, making it dramatically cheaper than heavyweight premium AI subscriptions."
+    icon: Sparkles,
+    title: "Readable math output",
+    body: "Responses are optimized for plain-English teaching and properly rendered equations instead of raw symbolic dumps."
   }
 ];
 
@@ -48,11 +48,11 @@ export function Features() {
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {features.map(({ icon: Icon, title, body }) => (
             <article key={title} className="glass-panel rounded-[1.75rem] p-7">
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
+              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-500 dark:bg-white/10 dark:text-brand-100">
                 <Icon className="h-6 w-6" />
               </div>
-              <h3 className="text-xl font-semibold text-ink">{title}</h3>
-              <p className="mt-4 text-base leading-8 text-slate-600">{body}</p>
+              <h3 className="text-xl font-semibold text-ink dark:text-white">{title}</h3>
+              <p className="mt-4 text-base leading-8 text-slate-600 dark:text-slate-300">{body}</p>
             </article>
           ))}
         </div>

@@ -18,6 +18,8 @@ def start_checkout(
     user=Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    if settings.beta_free_mode:
+        raise HTTPException(status_code=403, detail="Checkout is disabled while Sigma Solve is in public beta mode.")
     ensure_customer(db, user)
     checkout_url = create_checkout_session(
         user,
