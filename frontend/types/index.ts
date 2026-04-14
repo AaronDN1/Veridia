@@ -37,3 +37,33 @@ export type UsageStatus = {
   daily_limit: number | null;
   remaining_today: number | null;
 };
+
+export type PromptConversationMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+};
+
+export type PromptConversationThread = {
+  id: string;
+  title: string;
+  subject: string;
+  created_at: string;
+  updated_at: string;
+  messages: PromptConversationMessage[];
+};
+
+export type PromptConversationSummary = {
+  id: string;
+  title: string;
+  subject: string;
+  updated_at: string;
+  latest_message_preview: string;
+};
+
+export type PromptToolResponse = {
+  content: string;
+  usage_remaining: number | null;
+  thread: PromptConversationThread;
+};

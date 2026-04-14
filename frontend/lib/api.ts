@@ -1,4 +1,12 @@
-import type { DashboardData, SessionResponse, UploadedFile, UsageStatus } from "@/types";
+import type {
+  DashboardData,
+  PromptConversationSummary,
+  PromptConversationThread,
+  PromptToolResponse,
+  SessionResponse,
+  UploadedFile,
+  UsageStatus
+} from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -72,10 +80,45 @@ export async function uploadFile(file: File, purpose: "ai_prompt" | "lab_helper"
   return response.json();
 }
 
-export function runPromptTool(payload: { subject: string; prompt: string; file_ids: string[] }) {
-  return request<{ content: string; usage_remaining: number | null }>("/api/workspace/prompt", {
+export function runPromptTool(payload: { subject: string; prompt: string; file_ids: string[]; thread_id?: string }) {
+  return request<PromptToolResponse>("/api/workspace/prompt", {
     method: "POST",
     body: JSON.stringify(payload)
+  });
+}
+
+export function createPromptThread(payload: { subject: string; prompt: string; file_ids: string[] }) {
+  return request<PromptToolResponse>("/api/workspace/prompt/threads", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function continuePromptThread(threadId: string, payload: { prompt: string; file_ids: string[] }) {
+  return request<PromptToolResponse>(`/api/workspace/prompt/threads/${threadId}/messages`, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function getPromptThread(threadId: string) {
+  return request<PromptConversationThread>(`/api/workspace/prompt/threads/${threadId}`, {
+    method: "GET",
+    cache: "no-store"
+  });
+}
+
+export function getRecentPromptThreads() {
+  return request<PromptConversationSummary[]>("/api/workspace/prompt/threads/recent", {
+    method: "GET",
+    cache: "no-store"
+  });
+}
+
+export function getPromptThreadHistory() {
+  return request<PromptConversationSummary[]>("/api/workspace/prompt/threads/history", {
+    method: "GET",
+    cache: "no-store"
   });
 }
 

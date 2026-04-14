@@ -33,3 +33,4 @@ class User(Base):
     daily_usage = relationship("DailyUsage", back_populates="user", cascade="all, delete-orphan")
     uploaded_files = relationship("UploadedFile", back_populates="user", cascade="all, delete-orphan")
     outputs = relationship("GeneratedOutput", back_populates="user", cascade="all, delete-orphan")
+    prompt_threads = relationship("PromptConversationThread", back_populates="user", cascade="all, delete-orphan")

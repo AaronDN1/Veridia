@@ -1,8 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { BrainCircuit, ChartSpline, FlaskConical, Home, Settings2, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  BrainCircuit,
+  ChartSpline,
+  ChevronDown,
+  Clock3,
+  FlaskConical,
+  Home,
+  MessageSquarePlus,
+  Settings2,
+  Sparkles
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { ResponseRenderer } from "@/components/app/response-renderer";
@@ -10,8 +20,25 @@ import { UploadPanel } from "@/components/app/upload-panel";
 import { SettingsModal } from "@/components/shared/settings-modal";
 import { Button } from "@/components/shared/button";
 import { cn } from "@/lib/utils";
-import { generateGraph, logout, runLabHelper, runPromptTool, uploadFile } from "@/lib/api";
-import type { DashboardData, UploadedFile, UsageStatus, User } from "@/types";
+import {
+  continuePromptThread,
+  createPromptThread,
+  generateGraph,
+  getPromptThread,
+  getPromptThreadHistory,
+  getRecentPromptThreads,
+  logout,
+  runLabHelper,
+  uploadFile
+} from "@/lib/api";
+import type {
+  DashboardData,
+  PromptConversationSummary,
+  PromptConversationThread,
+  UploadedFile,
+  UsageStatus,
+  User
+} from "@/types";
 
 type WorkspaceTab = "ai_prompt" | "lab_helper" | "graphing";
 
@@ -34,8 +61,18 @@ const subjectOptions = [
 
 const BETA_FREE_MODE = process.env.NEXT_PUBLIC_BETA_FREE_MODE === "true";
 
+function formatThreadTime(value: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
 export function WorkspaceShell({ user, usage, dashboard }: Props) {
   const router = useRouter();
+  const conversationScrollRef = useRef<HTMLDivElement | null>(null);
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("ai_prompt");
   const [response, setResponse] = useState<string>("");
   const [graphUrl, setGraphUrl] = useState<string>("");
@@ -47,6 +84,11 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
   const [usageState, setUsageState] = useState<UsageStatus>(usage);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const [activeThread, setActiveThread] = useState<PromptConversationThread | null>(null);
+  const [recentThreads, setRecentThreads] = useState<PromptConversationSummary[]>([]);
+  const [historyThreads, setHistoryThreads] = useState<PromptConversationSummary[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [loadingThread, setLoadingThread] = useState(false);
 
   const [promptForm, setPromptForm] = useState({ subject: "Math", prompt: "" });
   const [labForm, setLabForm] = useState({
@@ -78,6 +120,23 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
     return `${usageState.remaining_today} of ${limit} prompts left today`;
   }, [usageState]);
 
+  const conversationMessages = activeThread?.messages ?? [];
+
+  useEffect(() => {
+    void refreshPromptLists();
+  }, []);
+
+  useEffect(() => {
+    if (!activeThread) return;
+    setPromptForm((current) => ({ ...current, subject: activeThread.subject }));
+  }, [activeThread]);
+
+  useEffect(() => {
+    if (activeTab !== "ai_prompt" || !conversationScrollRef.current) return;
+    const container = conversationScrollRef.current;
+    container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+  }, [activeTab, conversationMessages.length, loadingAction, activeThread?.id]);
+
   function updateUsage(remaining: number | null) {
     if (remaining === null) return;
     setUsageState((current) => ({
@@ -85,7 +144,17 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
       remaining_today: remaining,
       total_used_today:
         current.daily_limit === null ? current.total_used_today : Math.max((current.daily_limit ?? 0) - remaining, 0)
-    }));
+      }));
+  }
+
+  async function refreshPromptLists() {
+    try {
+      const [recent, history] = await Promise.all([getRecentPromptThreads(), getPromptThreadHistory()]);
+      setRecentThreads(recent);
+      setHistoryThreads(history);
+    } catch {
+      // Keep AI Prompt usable even if the thread list refresh fails.
+    }
   }
 
   async function handleUpload(file: File, purpose: "ai_prompt" | "lab_helper") {
@@ -113,14 +182,60 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
     }
   }
 
+  async function loadThread(threadId: string) {
+    setLoadingThread(true);
+    setError("");
+    try {
+      const thread = await getPromptThread(threadId);
+      setActiveTab("ai_prompt");
+      setGraphUrl("");
+      setResponse("");
+      setActiveThread(thread);
+      setPromptForm((current) => ({ ...current, subject: thread.subject, prompt: "" }));
+      setHistoryOpen(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load conversation.");
+    } finally {
+      setLoadingThread(false);
+    }
+  }
+
+  function startNewConversation() {
+    setActiveTab("ai_prompt");
+    setResponse("");
+    setGraphUrl("");
+    setActiveThread(null);
+    setPromptFiles([]);
+    setPromptForm((current) => ({ ...current, prompt: "" }));
+    setHistoryOpen(false);
+  }
+
   async function handlePromptSubmit() {
+    if (!promptForm.prompt.trim()) {
+      setError("Please enter a prompt before generating a response.");
+      return;
+    }
+
     setLoadingAction(true);
     setError("");
     try {
-      const result = await runPromptTool({ ...promptForm, file_ids: promptFiles.map((file) => file.id) });
+      const result = activeThread
+        ? await continuePromptThread(activeThread.id, {
+            prompt: promptForm.prompt.trim(),
+            file_ids: promptFiles.map((file) => file.id)
+          })
+        : await createPromptThread({
+            subject: promptForm.subject,
+            prompt: promptForm.prompt.trim(),
+            file_ids: promptFiles.map((file) => file.id)
+          });
       setGraphUrl("");
-      setResponse(result.content);
+      setResponse("");
+      setActiveThread(result.thread);
+      setPromptForm((current) => ({ ...current, prompt: "", subject: result.thread.subject }));
+      setPromptFiles([]);
       updateUsage(result.usage_remaining);
+      await refreshPromptLists();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to generate explanation.");
     } finally {
@@ -133,6 +248,7 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
     setError("");
     try {
       const result = await runLabHelper({ ...labForm, file_ids: labFiles.map((file) => file.id) });
+      setActiveThread(null);
       setGraphUrl("");
       setResponse(result.content);
       updateUsage(result.usage_remaining);
@@ -160,6 +276,7 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
         sample_count: Number(graphForm.sample_count),
         series: x.length && y.length ? [{ x, y, label: graphForm.label }] : []
       });
+      setActiveThread(null);
       setResponse("");
       setGraphUrl(result.image_url);
       updateUsage(result.usage_remaining);
@@ -211,7 +328,7 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
             </div>
             <p className="mt-3 text-sm text-slate-300">{usageLabel}</p>
             <p className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm leading-6 text-slate-200">
-              Public Beta — features currently free
+              Public Beta - features currently free
             </p>
           </div>
 
@@ -220,6 +337,93 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
             <SidebarButton active={activeTab === "lab_helper"} icon={FlaskConical} label="Lab Helper" onClick={() => setActiveTab("lab_helper")} />
             <SidebarButton active={activeTab === "graphing"} icon={ChartSpline} label="Graphing" onClick={() => setActiveTab("graphing")} />
           </div>
+
+          {activeTab === "ai_prompt" && (
+            <div className="mt-6 space-y-5">
+              <div>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">
+                    Recent Conversations
+                  </p>
+                  <span className="text-xs text-slate-400">Last 3</span>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {recentThreads.length > 0 ? (
+                    recentThreads.map((thread) => (
+                      <button
+                        key={thread.id}
+                        type="button"
+                        onClick={() => void loadThread(thread.id)}
+                        className={cn(
+                          "w-full rounded-2xl border px-4 py-3 text-left transition",
+                          activeThread?.id === thread.id
+                            ? "border-brand-200 bg-brand-50 dark:border-brand-400/40 dark:bg-brand-500/10"
+                            : "border-slate-200 bg-white hover:border-brand-100 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900/70"
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-ink dark:text-white">{thread.title}</p>
+                            <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-400">{thread.subject}</p>
+                          </div>
+                          <span className="shrink-0 text-[11px] text-slate-400">{formatThreadTime(thread.updated_at)}</span>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-300">{thread.latest_message_preview}</p>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-5 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">
+                      Your recent AI threads will appear here.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setHistoryOpen((current) => !current)}
+                  className="flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:border-brand-100 hover:text-ink dark:border-white/10 dark:bg-slate-950/45 dark:text-slate-200 dark:hover:bg-slate-900/70 dark:hover:text-white"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Clock3 className="h-4 w-4" />
+                    History (14 days)
+                  </span>
+                  <ChevronDown className={cn("h-4 w-4 transition", historyOpen && "rotate-180")} />
+                </button>
+                {historyOpen && (
+                  <div className="mt-3 max-h-80 space-y-2 overflow-y-auto pr-1">
+                    {historyThreads.length > 0 ? (
+                      historyThreads.map((thread) => (
+                        <button
+                          key={thread.id}
+                          type="button"
+                          onClick={() => void loadThread(thread.id)}
+                          className={cn(
+                            "w-full rounded-2xl border px-4 py-3 text-left transition",
+                            activeThread?.id === thread.id
+                              ? "border-brand-200 bg-brand-50 dark:border-brand-400/40 dark:bg-brand-500/10"
+                              : "border-slate-200 bg-white hover:border-brand-100 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-950/45 dark:hover:bg-slate-900/70"
+                          )}
+                        >
+                          <p className="truncate text-sm font-semibold text-ink dark:text-white">{thread.title}</p>
+                          <div className="mt-1 flex items-center justify-between gap-3 text-[11px] uppercase tracking-[0.2em] text-slate-400">
+                            <span className="truncate">{thread.subject}</span>
+                            <span className="shrink-0 normal-case tracking-normal">{formatThreadTime(thread.updated_at)}</span>
+                          </div>
+                          <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-300">{thread.latest_message_preview}</p>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-5 text-sm text-slate-500 dark:border-white/10 dark:text-slate-400">
+                        No conversations from the last 14 days yet.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </aside>
 
         <section className="space-y-6">
@@ -229,7 +433,7 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
                 <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-500">Workspace</p>
                 <h1 className="mt-3 font-serif text-4xl text-ink dark:text-white">Solve longer prompts with a cleaner, calmer workflow.</h1>
                 <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-300">
-                  Input comes first, output follows below, and the experience stays readable whether you are asking one question or pasting a full assignment.
+                  Input comes first, output follows below, and the experience stays readable whether you are asking one question or continuing a full conversation.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -242,7 +446,7 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
                   Settings
                 </button>
                 <div className="rounded-full border border-brand-100 bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600 dark:border-white/10 dark:bg-white/5 dark:text-brand-100">
-                  Public Beta — features currently free
+                  Public Beta - features currently free
                 </div>
               </div>
             </div>
@@ -254,14 +458,47 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
               <div className="space-y-5">
                 <div className="space-y-2">
                   <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-500">AI Prompt</p>
-                  <p className="text-sm text-slate-500 dark:text-slate-300">Ask for explanation, correction, walkthrough, or intuition. SigmaSolve will answer in a more human-readable teaching style.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-300">
+                    Start a new tutoring thread or keep an existing one going. SigmaSolve will use recent thread context so follow-up questions feel continuous.
+                  </p>
                 </div>
-                <select className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-500 dark:border-white/10 dark:bg-slate-950/50 dark:text-white" value={promptForm.subject} onChange={(event) => setPromptForm((current) => ({ ...current, subject: event.target.value }))}>
-                  {subjectOptions.map((subject) => <option key={subject} value={subject}>{subject}</option>)}
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button type="button" variant="secondary" className="w-full sm:w-auto" onClick={startNewConversation}>
+                    <MessageSquarePlus className="mr-2 h-4 w-4" />
+                    New conversation
+                  </Button>
+                  {activeThread && (
+                    <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 dark:border-white/10 dark:bg-slate-950/35 dark:text-slate-300">
+                      {activeThread.subject} - {activeThread.title}
+                    </div>
+                  )}
+                </div>
+                <select
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-brand-500 disabled:cursor-not-allowed disabled:bg-slate-100 dark:border-white/10 dark:bg-slate-950/50 dark:text-white dark:disabled:bg-slate-900/80"
+                  value={promptForm.subject}
+                  disabled={Boolean(activeThread)}
+                  onChange={(event) => setPromptForm((current) => ({ ...current, subject: event.target.value }))}
+                >
+                  {subjectOptions.map((subject) => (
+                    <option key={subject} value={subject}>
+                      {subject}
+                    </option>
+                  ))}
                 </select>
-                <textarea className="min-h-56 w-full rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4 text-sm outline-none transition focus:border-brand-500 dark:border-white/10 dark:bg-slate-950/50 dark:text-white dark:placeholder:text-slate-500" placeholder="Ask a homework question, paste your work, or describe what you need help understanding." value={promptForm.prompt} onChange={(event) => setPromptForm((current) => ({ ...current, prompt: event.target.value }))} />
+                <textarea
+                  className="min-h-56 w-full rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4 text-sm outline-none transition focus:border-brand-500 dark:border-white/10 dark:bg-slate-950/50 dark:text-white dark:placeholder:text-slate-500"
+                  placeholder={
+                    activeThread
+                      ? "Ask a follow-up question, refine the prior explanation, or continue the same problem."
+                      : "Ask a homework question, paste your work, or describe what you need help understanding."
+                  }
+                  value={promptForm.prompt}
+                  onChange={(event) => setPromptForm((current) => ({ ...current, prompt: event.target.value }))}
+                />
                 <UploadPanel purpose="ai_prompt" files={promptFiles} loading={loadingUpload} onUpload={handleUpload} onRemove={(fileId) => removeFile(fileId, "ai_prompt")} />
-                <Button className="w-full md:w-auto" onClick={handlePromptSubmit} disabled={loadingAction}>{loadingAction ? "Generating response..." : "Generate explanation"}</Button>
+                <Button className="w-full md:w-auto" onClick={handlePromptSubmit} disabled={loadingAction || loadingThread}>
+                  {loadingAction ? "Generating response..." : activeThread ? "Send follow-up" : "Start conversation"}
+                </Button>
               </div>
             )}
 
@@ -320,13 +557,61 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
           <div className="glass-panel rounded-[2rem] p-6 md:p-8">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-500">Output</p>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">Clean explanations, rendered math, and downloadable results appear here.</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-500">{activeTab === "ai_prompt" ? "Conversation" : "Output"}</p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-300">
+                  {activeTab === "ai_prompt"
+                    ? "Messages stay in order here so you can resume the same tutoring thread naturally."
+                    : "Clean explanations, rendered math, and downloadable results appear here."}
+                </p>
               </div>
-              <div className="text-sm font-medium text-slate-500 dark:text-slate-300">{usageLabel}</div>
+              <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-300">
+                {activeTab === "ai_prompt" && <span className="text-xs uppercase tracking-[0.2em] text-slate-400">Drag lower edge to resize</span>}
+                <span>{usageLabel}</span>
+              </div>
             </div>
-            <div className={cn("mt-5 rounded-[1.5rem] bg-white p-5 dark:bg-slate-950/55", response || graphUrl ? "min-h-0" : "min-h-[28rem]")}>
-              {response ? <ResponseRenderer content={response} /> : graphUrl ? (
+            <div className={cn("mt-5 rounded-[1.5rem] bg-white p-5 dark:bg-slate-950/55", activeTab === "ai_prompt" || response || graphUrl ? "min-h-0" : "min-h-[28rem]")}>
+              {activeTab === "ai_prompt" ? (
+                <div
+                  ref={conversationScrollRef}
+                  className="h-[28rem] min-h-[20rem] max-h-[75vh] resize-y overflow-y-auto rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4 pr-3 dark:border-white/10 dark:bg-slate-950/35"
+                >
+                  {conversationMessages.length > 0 ? (
+                    <div className="space-y-4">
+                      {conversationMessages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={cn(
+                            "rounded-[1.5rem] border px-4 py-4",
+                            message.role === "assistant"
+                              ? "border-slate-200 bg-white dark:border-white/10 dark:bg-slate-950/75"
+                              : "border-brand-100 bg-brand-50 dark:border-brand-400/30 dark:bg-brand-500/10"
+                          )}
+                        >
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">
+                              {message.role === "assistant" ? "SigmaSolve" : "You"}
+                            </p>
+                            <p className="text-xs text-slate-400">{formatThreadTime(message.created_at)}</p>
+                          </div>
+                          {message.role === "assistant" ? (
+                            <ResponseRenderer content={message.content} />
+                          ) : (
+                            <p className="whitespace-pre-wrap text-sm leading-7 text-ink dark:text-white">{message.content}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex h-full min-h-[18rem] items-center justify-center rounded-[1.5rem] border border-dashed border-slate-200 bg-white/70 px-6 text-center text-slate-500 dark:border-white/10 dark:bg-slate-950/30 dark:text-slate-400">
+                      {loadingThread
+                        ? "Loading conversation..."
+                        : "Start a new AI conversation or open one from the sidebar to continue where you left off."}
+                    </div>
+                  )}
+                </div>
+              ) : response ? (
+                <ResponseRenderer content={response} />
+              ) : graphUrl ? (
                 <div className="space-y-4">
                   <img src={graphUrl} alt="Generated graph" className="w-full rounded-3xl border border-slate-100 dark:border-white/10" />
                   <a href={graphUrl} download className="inline-flex rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white">Download graph</a>

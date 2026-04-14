@@ -15,11 +15,45 @@ class PromptRequest(BaseModel):
     subject: str
     prompt: str = Field(min_length=3)
     file_ids: list[UUID] = Field(default_factory=list)
+    thread_id: UUID | None = None
 
 
-class PromptResponse(BaseModel):
+class PromptConversationMessageResponse(BaseModel):
+    id: UUID
+    role: str
+    content: str
+    created_at: datetime
+
+
+class PromptConversationThreadSummary(BaseModel):
+    id: UUID
+    title: str
+    subject: str
+    updated_at: datetime
+    latest_message_preview: str
+
+
+class PromptConversationThreadResponse(BaseModel):
+    id: UUID
+    title: str
+    subject: str
+    created_at: datetime
+    updated_at: datetime
+    messages: list[PromptConversationMessageResponse]
+
+
+class PromptContinueRequest(BaseModel):
+    prompt: str = Field(min_length=3)
+    file_ids: list[UUID] = Field(default_factory=list)
+
+
+class ToolTextResponse(BaseModel):
     content: str
     usage_remaining: int | None
+
+
+class PromptResponse(ToolTextResponse):
+    thread: PromptConversationThreadResponse
 
 
 class LabHelperRequest(BaseModel):

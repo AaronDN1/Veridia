@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.models.generated_output import GeneratedOutput, OutputType
+from app.models.prompt_thread import PromptConversationMessage
 from app.models.uploaded_file import UploadedFile
 from app.models.user import User
 from app.schemas.workspace import LabHelperRequest, PromptRequest
@@ -48,6 +49,21 @@ def _build_file_input(upload: UploadedFile) -> dict[str, str | dict]:
     return {"type": "text", "text": f"File context from {upload.original_name}:\n{context['text']}"}
 
 
+def build_prompt_user_message(subject: str, prompt: str, uploads: list[UploadedFile]) -> str:
+    sections = [f"Subject: {subject}", "", prompt.strip()]
+
+    text_contexts: list[str] = []
+    for upload in uploads:
+        context = extract_file_context(upload)
+        if context["type"] == "text" and context["text"].strip():
+            text_contexts.append(f"File context from {upload.original_name}:\n{context['text']}")
+
+    if text_contexts:
+        sections.extend(["", "Relevant file context:", "", "\n\n".join(text_contexts)])
+
+    return "\n".join(sections).strip()
+
+
 def _create_chat_completion(prompt_text: str) -> str:
     response = client.chat.completions.create(
         model=settings.openai_model,
@@ -60,8 +76,31 @@ def _create_chat_completion(prompt_text: str) -> str:
     return text.strip()
 
 
+def create_thread_completion(
+    subject: str,
+    prompt: str,
+    uploads: list[UploadedFile],
+    history: list[PromptConversationMessage] | None = None,
+    history_limit: int = 12,
+) -> str:
+    conversation_messages = [{"role": "system", "content": DEFAULT_SYSTEM_PROMPT}]
+
+    if history:
+        for message in history[-history_limit:]:
+            conversation_messages.append({"role": message.role.value, "content": message.content})
+
+    conversation_messages.append({"role": "user", "content": build_prompt_user_message(subject, prompt, uploads)})
+
+    response = client.chat.completions.create(
+        model=settings.openai_model,
+        messages=conversation_messages,
+    )
+    text = response.choices[0].message.content or ""
+    return text.strip()
+
+
 def generate_prompt_response(db: Session, user: User, request: PromptRequest, uploads: list[UploadedFile]) -> str:
-    prompt_text = f"Subject: {request.subject}\n\n{request.prompt}"
+    prompt_text = build_prompt_user_message(request.subject, request.prompt, uploads)
     try:
         text = _create_chat_completion(prompt_text)
     except Exception as e:
