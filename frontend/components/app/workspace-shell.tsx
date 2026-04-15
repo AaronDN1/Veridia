@@ -27,6 +27,8 @@ import {
   trackGraphingStarted,
   trackLabHelperCompleted,
   trackLabHelperStarted,
+  trackMessageAppended,
+  trackThreadCreated,
   trackThreadLoaded,
 } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
@@ -264,6 +266,18 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
       setPromptFiles([]);
       updateUsage(result.usage_remaining);
       await refreshPromptLists();
+      if (isNewThread) {
+        trackThreadCreated({
+          thread_id: result.thread.id,
+          subject: result.thread.subject,
+        });
+      }
+      trackMessageAppended({
+        thread_id: result.thread.id,
+        subject: result.thread.subject,
+        message_count: result.thread.messages.length,
+        messages_added: 2,
+      });
       trackAiResponseReceived({
         feature_name: "ai_prompt",
         thread_id: result.thread.id,

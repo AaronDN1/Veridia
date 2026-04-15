@@ -1,11 +1,13 @@
 "use client";
 
+import posthog from "posthog-js";
+
 type AnalyticsEventProperties = Record<string, string | number | boolean | null | undefined>;
 type FeatureName = "ai_prompt" | "lab_helper" | "graphing";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-const ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true";
-const ANONYMOUS_ID_KEY = "sigma_analytics_anonymous_id";
+const POSTHOG_KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
+const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST;
+const ANALYTICS_ENABLED = Boolean(POSTHOG_KEY && POSTHOG_HOST);
 
 type SessionState = {
   sessionId: string;
@@ -18,50 +20,33 @@ type SessionState = {
 let currentUserId: string | null = null;
 let sessionState: SessionState | null = null;
 let listenersInstalled = false;
-
-function nowIso() {
-  return new Date().toISOString();
-}
-
-function getAnonymousId() {
-  if (typeof window === "undefined") return "server";
-
-  const existing = window.localStorage.getItem(ANONYMOUS_ID_KEY);
-  if (existing) return existing;
-
-  const created = crypto.randomUUID();
-  window.localStorage.setItem(ANONYMOUS_ID_KEY, created);
-  return created;
-}
+let initialized = false;
 
 function postAnalyticsEvent(event: string, properties: AnalyticsEventProperties = {}, useBeacon = false) {
-  if (!ANALYTICS_ENABLED || typeof window === "undefined") return;
+  if (!ANALYTICS_ENABLED || typeof window === "undefined" || !initialized) return;
 
-  const payload = JSON.stringify({
-    event,
-    distinct_id: currentUserId ?? getAnonymousId(),
-    timestamp: nowIso(),
-    properties: {
-      session_id: sessionState?.sessionId ?? null,
-      user_id: currentUserId,
-      anonymous_id: currentUserId ? null : getAnonymousId(),
-      ...properties,
-    },
+  posthog.capture(event, {
+    session_id: sessionState?.sessionId ?? null,
+    user_id: currentUserId,
+    transport: useBeacon ? "sendBeacon" : undefined,
+    ...properties,
   });
+}
 
-  if (useBeacon && navigator.sendBeacon) {
-    const blob = new Blob([payload], { type: "application/json" });
-    navigator.sendBeacon(`${API_URL}/api/analytics/capture`, blob);
+export function initAnalytics() {
+  if (!ANALYTICS_ENABLED || typeof window === "undefined" || initialized || !POSTHOG_KEY || !POSTHOG_HOST) {
     return;
   }
 
-  void fetch(`${API_URL}/api/analytics/capture`, {
-    method: "POST",
-    credentials: "include",
-    keepalive: useBeacon,
-    headers: { "Content-Type": "application/json" },
-    body: payload,
-  }).catch(() => undefined);
+  posthog.init(POSTHOG_KEY, {
+    api_host: POSTHOG_HOST,
+    defaults: "2025-05-24",
+    autocapture: false,
+    capture_pageview: "history_change",
+    capture_pageleave: false,
+    persistence: "localStorage",
+  });
+  initialized = true;
 }
 
 function closeActiveFeature(reason: "tab_switch" | "session_end" | "page_hidden") {
@@ -119,6 +104,13 @@ export function installAnalyticsListeners() {
 
 export function setAnalyticsUser(userId: string | null) {
   currentUserId = userId;
+  if (!ANALYTICS_ENABLED || !initialized) return;
+
+  if (userId) {
+    posthog.identify(userId, { user_id: userId });
+  } else {
+    posthog.reset();
+  }
 }
 
 export function startAnalyticsSession(userId: string) {
@@ -193,6 +185,14 @@ export function trackGraphGenerated(properties: AnalyticsEventProperties) {
 
 export function trackThreadLoaded(properties: AnalyticsEventProperties) {
   postAnalyticsEvent("thread_resumed", properties);
+}
+
+export function trackThreadCreated(properties: AnalyticsEventProperties) {
+  postAnalyticsEvent("thread_created", properties);
+}
+
+export function trackMessageAppended(properties: AnalyticsEventProperties) {
+  postAnalyticsEvent("message_appended", properties);
 }
 
 export function trackClientApiFailure(properties: AnalyticsEventProperties) {

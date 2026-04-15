@@ -44,7 +44,7 @@ def get_current_user(
 
 def build_user_response(db: Session, user: User) -> dict:
     usage = get_or_create_daily_usage(db, user)
-    is_unlimited = user.plan_type == PlanType.UNLIMITED
+    is_unlimited = user.is_unlimited or user.plan_type == PlanType.UNLIMITED
     return {
         "id": user.id,
         "email": user.email,

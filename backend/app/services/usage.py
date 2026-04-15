@@ -29,16 +29,17 @@ def get_or_create_daily_usage(db: Session, user: User) -> DailyUsage:
 
 def ensure_usage_available(db: Session, user: User) -> DailyUsage:
     usage = get_or_create_daily_usage(db, user)
+    if user.is_unlimited:
+        return usage
     if not settings.beta_free_mode and user.plan_type == PlanType.UNLIMITED:
         return usage
     if usage.total_uses >= settings.free_daily_limit:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=(
-                "Daily prompt limit reached for today. SigmaSolve public beta currently allows "
-                f"{settings.free_daily_limit} prompts per user each day."
+                f"Daily prompt limit reached for today. SigmaSolve Public Beta allows {settings.free_daily_limit} prompts per day."
                 if settings.beta_free_mode
-                else "Free plan daily limit reached. Please try again tomorrow."
+                else f"Daily prompt limit reached for today. SigmaSolve Public Beta allows {settings.free_daily_limit} prompts per day."
             ),
         )
     return usage
@@ -52,6 +53,8 @@ def record_usage(db: Session, user: User, feature: str) -> int | None:
     db.commit()
     db.refresh(usage)
 
+    if user.is_unlimited:
+        return max(settings.free_daily_limit - usage.total_uses, 0)
     if not settings.beta_free_mode and user.plan_type == PlanType.UNLIMITED:
         return None
     return max(settings.free_daily_limit - usage.total_uses, 0)

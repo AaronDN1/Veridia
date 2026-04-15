@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 
-import { installAnalyticsListeners } from "@/lib/analytics";
+import { initAnalytics, installAnalyticsListeners } from "@/lib/analytics";
 
 export function AnalyticsBoot() {
   useEffect(() => {
+    initAnalytics();
     installAnalyticsListeners();
   }, []);
 

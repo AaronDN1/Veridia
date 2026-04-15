@@ -2,8 +2,6 @@ import Link from "next/link";
 
 import { GoogleSignIn } from "@/components/app/google-signin";
 
-const BETA_FREE_MODE = process.env.NEXT_PUBLIC_BETA_FREE_MODE === "true";
-
 export default function SignInPage() {
   return (
     <main className="min-h-screen px-6 py-10 lg:px-8">
@@ -15,17 +13,8 @@ export default function SignInPage() {
             Sign in with Google to open the app, track your plan, save uploads, and use AI Prompt, Lab Helper, and Graphing in one place.
           </p>
           <div className="mt-10 space-y-4 text-sm text-slate-300">
-            {BETA_FREE_MODE ? (
-              <>
-                <p>Public Beta — features currently free.</p>
-                <p>All signed-in users can access the full product experience with a 20-prompt daily cap while testing is active.</p>
-              </>
-            ) : (
-              <>
-                <p>Free plan: all features, 3 total uses per day.</p>
-                <p>Unlimited plan: all features, unlimited use, $5/month.</p>
-              </>
-            )}
+            <p>Public Beta - 20 prompts per day.</p>
+            <p>All signed-in users can access the full product experience while public testing is active.</p>
           </div>
         </section>
 

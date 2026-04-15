@@ -22,7 +22,7 @@ def usage_status(user=Depends(get_current_user), db: Session = Depends(get_db)):
             "daily_limit": settings.free_daily_limit,
             "remaining_today": max(settings.free_daily_limit - usage.total_uses, 0),
         }
-    if user.plan_type == PlanType.UNLIMITED:
+    if user.is_unlimited or user.plan_type == PlanType.UNLIMITED:
         return {
             "plan_type": user.plan_type.value,
             "total_used_today": usage.total_uses,
