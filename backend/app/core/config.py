@@ -10,7 +10,7 @@ STORAGE_ROOT = BASE_DIR / "storage"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=BASE_DIR / ".env", env_file_encoding="utf-8", extra="ignore")
 
     app_name: str = "Sigma Solve API"
     environment: str = "development"
@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str
     stripe_price_id: str
     session_cookie_name: str = "sigma_solve_session"
+    admin_email: str = "adnathans@gmail.com"
     beta_free_mode: bool = False
     storage_root: Path = STORAGE_ROOT
     upload_dir: Path = STORAGE_ROOT / "uploads"
@@ -43,6 +44,11 @@ class Settings(BaseSettings):
         if isinstance(value, list):
             return value
         return [item.strip() for item in value.split(",") if item.strip()]
+
+    @field_validator("google_client_id", "admin_email", mode="before")
+    @classmethod
+    def strip_optional_strings(cls, value: str) -> str:
+        return value.strip() if isinstance(value, str) else value
 
 
 @lru_cache

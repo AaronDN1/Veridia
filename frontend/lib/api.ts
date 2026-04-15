@@ -1,4 +1,5 @@
 import type {
+  AdminUserSummary,
   DashboardData,
   PromptConversationSummary,
   PromptConversationThread,
@@ -147,6 +148,20 @@ export function getPromptThreadHistory() {
     method: "GET",
     cache: "no-store"
   }, "ai_prompt");
+}
+
+export function getAdminUsers() {
+  return request<AdminUserSummary[]>("/api/admin/users", {
+    method: "GET",
+    cache: "no-store"
+  });
+}
+
+export function updateAdminUserOverride(userId: string, manualUnlimitedOverride: boolean) {
+  return request<AdminUserSummary>(`/api/admin/users/${userId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ manual_unlimited_override: manualUnlimitedOverride })
+  });
 }
 
 export function runLabHelper(payload: {

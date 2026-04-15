@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.models.usage import DailyUsage
 from app.models.user import PlanType, User
+from app.services.access import has_effective_unlimited_access
 
 
 FEATURE_FIELD_MAP = {
@@ -29,9 +30,7 @@ def get_or_create_daily_usage(db: Session, user: User) -> DailyUsage:
 
 def ensure_usage_available(db: Session, user: User) -> DailyUsage:
     usage = get_or_create_daily_usage(db, user)
-    if user.is_unlimited:
-        return usage
-    if not settings.beta_free_mode and user.plan_type == PlanType.UNLIMITED:
+    if has_effective_unlimited_access(db, user):
         return usage
     if usage.total_uses >= settings.free_daily_limit:
         raise HTTPException(
@@ -53,8 +52,4 @@ def record_usage(db: Session, user: User, feature: str) -> int | None:
     db.commit()
     db.refresh(usage)
 
-    if user.is_unlimited:
-        return max(settings.free_daily_limit - usage.total_uses, 0)
-    if not settings.beta_free_mode and user.plan_type == PlanType.UNLIMITED:
-        return None
     return max(settings.free_daily_limit - usage.total_uses, 0)

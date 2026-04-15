@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.db.session import get_db
 from app.models.subscription import Subscription, SubscriptionStatus
 from app.models.user import PlanType, User
+from app.services.access import has_paid_unlimited_access, is_admin_email
 from app.services.auth import decode_session_token
 from app.services.usage import get_or_create_daily_usage
 
@@ -42,17 +43,23 @@ def get_current_user(
     return user
 
 
+def get_admin_user(user: User = Depends(get_current_user)) -> User:
+    if not is_admin_email(user.email):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required.")
+    return user
+
+
 def build_user_response(db: Session, user: User) -> dict:
     usage = get_or_create_daily_usage(db, user)
-    is_unlimited = user.is_unlimited or user.plan_type == PlanType.UNLIMITED
+    has_paid_unlimited = has_paid_unlimited_access(db, user)
     return {
         "id": user.id,
         "email": user.email,
         "full_name": user.full_name,
         "avatar_url": user.avatar_url,
         "plan_type": PlanType.FREE.value if settings.beta_free_mode else user.plan_type.value,
-        "active_subscription": False if settings.beta_free_mode else is_unlimited,
+        "active_subscription": False if settings.beta_free_mode else has_paid_unlimited,
         "daily_usage_count": usage.total_uses,
-        "daily_usage_limit": settings.free_daily_limit if settings.beta_free_mode else (None if is_unlimited else settings.free_daily_limit),
+        "daily_usage_limit": settings.free_daily_limit if settings.beta_free_mode else (None if has_paid_unlimited else settings.free_daily_limit),
         "created_at": user.created_at,
     }

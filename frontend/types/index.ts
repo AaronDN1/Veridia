@@ -67,3 +67,14 @@ export type PromptToolResponse = {
   usage_remaining: number | null;
   thread: PromptConversationThread;
 };
+
+export type AdminUserSummary = {
+  id: string;
+  email: string;
+  full_name: string;
+  effective_access_status: "unlimited" | "public_beta";
+  effective_access_source: "manual_override" | "paid_unlimited" | "public_beta";
+  manual_unlimited_override: boolean;
+  paid_unlimited_access: boolean;
+  created_at: string;
+};
