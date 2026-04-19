@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import build_user_response, get_current_user
 from app.core.config import settings
 from app.db.session import get_db
+from app.models.feedback import FeedbackSubmission
 from app.schemas.auth import GoogleSignInRequest, SessionResponse
 from app.services.analytics import capture_analytics_event
 from app.services.auth import create_session_token, get_or_create_user_from_google, verify_google_credential
@@ -47,5 +48,17 @@ def get_session(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(response: Response):
+    response.delete_cookie(settings.session_cookie_name)
+    return {"success": True}
+
+
+@router.delete("/account")
+def delete_account(response: Response, user=Depends(get_current_user), db: Session = Depends(get_db)):
+    db.query(FeedbackSubmission).filter(FeedbackSubmission.user_id == user.id).update(
+        {FeedbackSubmission.user_id: None},
+        synchronize_session=False,
+    )
+    db.delete(user)
+    db.commit()
     response.delete_cookie(settings.session_cookie_name)
     return {"success": True}

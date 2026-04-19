@@ -61,6 +61,12 @@ export function logout() {
   });
 }
 
+export function deleteAccount() {
+  return request<{ success: boolean }>("/api/auth/account", {
+    method: "DELETE"
+  });
+}
+
 export function getUsageStatus(): Promise<UsageStatus> {
   return request("/api/usage/status", { method: "GET", cache: "no-store" });
 }

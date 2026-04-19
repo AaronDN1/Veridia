@@ -38,6 +38,7 @@ import { cn } from "@/lib/utils";
 import {
   continuePromptThread,
   createPromptThread,
+  deleteAccount,
   deletePromptThread,
   generateGraph,
   getPromptThread,
@@ -409,6 +410,21 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
     await logout();
     router.push("/");
     router.refresh();
+  }
+
+  async function handleDeleteAccount() {
+    const confirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    if (!confirmed) return;
+
+    setSettingsOpen(false);
+    setError("");
+    try {
+      await deleteAccount();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to delete account.");
+    }
   }
 
   return (
@@ -789,7 +805,12 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
         </section>
       </div>
 
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} onLogout={handleLogout} />
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onLogout={handleLogout}
+        onDeleteAccount={handleDeleteAccount}
+      />
     </main>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Moon, SunMedium, X } from "lucide-react";
+import { AlertTriangle, LogOut, Moon, SunMedium, X } from "lucide-react";
 
 import { Button } from "@/components/shared/button";
 import { cn } from "@/lib/utils";
@@ -10,9 +10,10 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onLogout?: () => Promise<void> | void;
+  onDeleteAccount?: () => Promise<void> | void;
 };
 
-export function SettingsModal({ open, onClose, onLogout }: Props) {
+export function SettingsModal({ open, onClose, onLogout, onDeleteAccount }: Props) {
   const { resolvedTheme, toggleTheme } = useTheme();
 
   if (!open) {
@@ -66,11 +67,25 @@ export function SettingsModal({ open, onClose, onLogout }: Props) {
           </div>
         </div>
 
-        {onLogout ? (
-          <Button variant="secondary" className="mt-6 w-full justify-center gap-2" onClick={onLogout}>
-            <LogOut className="h-4 w-4" />
-            Log out
-          </Button>
+        {onLogout || onDeleteAccount ? (
+          <div className="mt-6 space-y-3">
+            {onLogout ? (
+              <Button variant="secondary" className="w-full justify-center gap-2" onClick={onLogout}>
+                <LogOut className="h-4 w-4" />
+                Log out
+              </Button>
+            ) : null}
+            {onDeleteAccount ? (
+              <Button
+                variant="ghost"
+                className="w-full justify-center gap-2 border-rose-200/80 text-rose-600 hover:border-rose-300 hover:bg-rose-50/85 hover:text-rose-700 dark:border-rose-500/20 dark:text-rose-200 dark:hover:border-rose-400/28 dark:hover:bg-rose-500/10 dark:hover:text-rose-100"
+                onClick={onDeleteAccount}
+              >
+                <AlertTriangle className="h-4 w-4" />
+                Delete Account
+              </Button>
+            ) : null}
+          </div>
         ) : null}
       </div>
     </div>
