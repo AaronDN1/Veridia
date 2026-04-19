@@ -40,7 +40,7 @@ export function MarketingNav() {
       <header className="sticky top-0 z-30 px-4 pt-4 lg:px-6">
         <div
           className={[
-            "mx-auto flex max-w-7xl items-center rounded-[1.75rem] px-4 py-4 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 md:grid md:grid-cols-[auto_1fr_auto] md:items-center md:gap-4 lg:px-6",
+            "mx-auto flex max-w-7xl items-center rounded-[1.75rem] px-4 py-4 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 md:grid md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:items-center md:gap-4 lg:px-6",
             scrolled
               ? "border border-white/80 bg-white/88 shadow-[0_18px_48px_rgba(16,32,22,0.14)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#1b2620]/78 dark:shadow-[0_18px_48px_rgba(7,12,9,0.22)]"
               : "border border-transparent bg-transparent shadow-none backdrop-blur-0"
@@ -77,7 +77,7 @@ export function MarketingNav() {
             </Link>
           </nav>
 
-          <div className="ml-auto flex items-center gap-3 md:ml-0 md:justify-self-end">
+          <div className="ml-auto flex items-center gap-3 md:ml-0 md:min-w-0 md:justify-self-end">
             <Link href="/" className="md:hidden">
               <Button variant="ghost" className="text-slate-600 dark:text-slate-200 dark:hover:text-white">
                 Home
