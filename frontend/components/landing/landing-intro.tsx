@@ -7,7 +7,7 @@ import { Button } from "@/components/shared/button";
 
 export function LandingIntro() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-24 lg:px-8">
+    <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-24 lg:px-8">
       <div className="mx-auto flex w-full max-w-5xl -translate-y-6 items-center justify-center md:-translate-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

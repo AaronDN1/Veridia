@@ -14,14 +14,17 @@ export function MarketingNav() {
   const pathname = usePathname();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState<"home" | "features" | "how-it-works" | "about">(
+    pathname === "/about" ? "about" : "home"
+  );
   const featuresHref = pathname === "/" ? "#features" : "/#features";
   const howItWorksHref = pathname === "/" ? "#how-it-works" : "/#how-it-works";
   const navItemClass = (active: boolean) =>
     [
       "rounded-full px-4 py-2 text-sm transition",
       active
-        ? "bg-brand-50 text-brand-700 dark:bg-brand-500/12 dark:text-brand-100"
-        : "hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-500/10 dark:hover:text-brand-100"
+        ? "bg-brand-100/75 text-brand-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:bg-brand-500/10 dark:text-slate-50"
+        : "hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-500/6 dark:hover:text-slate-100"
     ].join(" ");
 
   useEffect(() => {
@@ -34,6 +37,48 @@ export function MarketingNav() {
 
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (pathname === "/about") {
+      setActiveSection("about");
+      return;
+    }
+    if (pathname !== "/") {
+      return;
+    }
+
+    const sectionIds: Array<"home" | "features" | "how-it-works"> = ["home", "features", "how-it-works"];
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+
+    if (!sections.length) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visibleEntries[0]?.target.id) {
+          setActiveSection(visibleEntries[0].target.id as "home" | "features" | "how-it-works");
+        }
+      },
+      {
+        rootMargin: "-20% 0px -55% 0px",
+        threshold: [0.2, 0.35, 0.55],
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  function handleSectionClick(section: "home" | "features" | "how-it-works" | "about") {
+    setActiveSection(section);
+  }
 
   return (
     <>
@@ -63,23 +108,23 @@ export function MarketingNav() {
           </Link>
 
           <nav className="hidden items-center gap-2 justify-self-center rounded-full border border-slate-200/80 bg-white/70 px-2 py-1 text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:border-white/9 dark:bg-white/[0.045] dark:text-slate-300 md:flex">
-            <Link href="/" className={navItemClass(pathname === "/")}>
+            <Link href="/" className={navItemClass(pathname === "/" && activeSection === "home")} onClick={() => handleSectionClick("home")}>
               Home
             </Link>
-            <Link href={featuresHref} className={navItemClass(false)}>
+            <Link href={featuresHref} className={navItemClass(pathname === "/" && activeSection === "features")} onClick={() => handleSectionClick("features")}>
               Features
             </Link>
-            <Link href={howItWorksHref} className={navItemClass(false)}>
+            <Link href={howItWorksHref} className={navItemClass(pathname === "/" && activeSection === "how-it-works")} onClick={() => handleSectionClick("how-it-works")}>
               How it works
             </Link>
-            <Link href="/about" className={navItemClass(pathname === "/about")}>
+            <Link href="/about" className={navItemClass(pathname === "/about" || activeSection === "about")} onClick={() => handleSectionClick("about")}>
               About Me
             </Link>
           </nav>
 
           <div className="ml-auto flex items-center gap-3 md:ml-0 md:min-w-0 md:justify-self-end">
             <Link href="/" className="md:hidden">
-              <Button variant="ghost" className="text-slate-600 dark:text-slate-200 dark:hover:text-white">
+              <Button variant="ghost" className="text-slate-600 dark:border-white/8 dark:bg-white/[0.035] dark:text-slate-200 dark:hover:border-brand-300/16 dark:hover:bg-white/[0.05] dark:hover:text-white">
                 Home
               </Button>
             </Link>
@@ -92,7 +137,7 @@ export function MarketingNav() {
               <Settings2 className="h-4 w-4" />
             </button>
             <Link href="/app">
-              <Button>Open Veridia</Button>
+              <Button className="dark:border-brand-400/18 dark:bg-brand-500/84 dark:text-slate-950 dark:shadow-[0_14px_32px_rgba(7,12,9,0.18)] dark:hover:bg-brand-500/92">Open Veridia</Button>
             </Link>
           </div>
         </div>

@@ -59,7 +59,7 @@ export function Features() {
               whileHover={{ y: -5 }}
               className="glass-panel rounded-[1.85rem] p-7"
             >
-              <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] dark:bg-brand-500/18 dark:text-brand-200">
+              <div className="icon-chip mb-6 h-12 w-12">
                 <Icon className="h-6 w-6" />
               </div>
               <h3 className="text-xl font-semibold text-ink dark:text-white">{title}</h3>

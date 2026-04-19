@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { BadgeCheck, BrainCircuit, ChartSpline, FlaskConical } from "lucide-react";
+import { BrainCircuit, ChartSpline, FlaskConical } from "lucide-react";
 
 const highlights = [
   "Explains STEM work like a strong tutor, not a generic chatbot",
@@ -25,13 +25,8 @@ export function Hero() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-          className="space-y-9"
+          className="space-y-8"
         >
-          <div className="premium-accent inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-slate-700 dark:text-slate-100">
-            <BadgeCheck className="h-4 w-4 text-brand-500 dark:text-brand-200" />
-            Public Beta - features currently free
-          </div>
-
           <div className="space-y-6">
             <h1 className="max-w-4xl font-serif text-5xl leading-[0.95] text-ink dark:text-white md:text-7xl">
               Focused AI support for homework, lab reports, and graphing.
@@ -107,7 +102,7 @@ export function Hero() {
                 transition={cardTransition}
                 className="premium-subtle rounded-[1.7rem] p-5"
               >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] dark:bg-brand-500/18 dark:text-brand-200">
+                <div className="icon-chip mb-4 h-11 w-11">
                   <Icon className="h-5 w-5" />
                 </div>
                 <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{title}</p>
@@ -120,7 +115,7 @@ export function Hero() {
               transition={cardTransition}
               className="premium-subtle rounded-[1.7rem] p-5 md:col-span-2"
             >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] dark:bg-brand-500/18 dark:text-brand-200">
+              <div className="icon-chip mb-4 h-11 w-11">
                 <ChartSpline className="h-5 w-5" />
               </div>
               <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Graphing</p>

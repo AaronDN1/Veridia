@@ -462,9 +462,6 @@ export function WorkspaceShell({ user, usage, dashboard }: Props) {
               <Sparkles className="h-5 w-5 text-brand-500 dark:text-brand-200" />
             </div>
             <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{usageLabel}</p>
-            <p className="premium-accent mt-4 rounded-2xl px-4 py-3 text-sm leading-6 text-brand-700 dark:text-brand-100">
-              Public Beta - features currently free
-            </p>
           </div>
 
           <div className="mt-6 space-y-2">
@@ -905,7 +902,7 @@ function PromptSubjectSelect({
           aria-expanded={open}
         >
           <span className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] dark:bg-brand-500/18 dark:text-brand-200">
+            <span className="icon-chip h-9 w-9 rounded-xl">
               <BrainCircuit className="h-4 w-4" />
             </span>
             <span>
