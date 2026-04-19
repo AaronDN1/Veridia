@@ -33,10 +33,14 @@ def ensure_backward_compatible_schema() -> None:
         return
 
     columns = {column["name"] for column in inspector.get_columns("users")}
-    if "is_unlimited" in columns:
-        return
-
     with engine.begin() as connection:
-        connection.execute(
-            text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_unlimited BOOLEAN NOT NULL DEFAULT FALSE")
-        )
+        if "is_unlimited" not in columns:
+            connection.execute(
+                text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_unlimited BOOLEAN NOT NULL DEFAULT FALSE")
+            )
+        if "account_status" not in columns:
+            connection.execute(
+                text(
+                    "ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status VARCHAR(24) NOT NULL DEFAULT 'active'"
+                )
+            )

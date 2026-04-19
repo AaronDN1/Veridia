@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/shared/button";
-import { getAdminFeedback, getAdminUsers, getSession, updateAdminUserOverride } from "@/lib/api";
+import { getAdminFeedback, getAdminUsers, getSession, updateAdminUser } from "@/lib/api";
 import type { AdminUserSummary, FeedbackSubmission } from "@/types";
 
 type AdminTab = "users" | "feedback";
@@ -25,6 +25,12 @@ function formatAccessStatus(user: AdminUserSummary) {
     return user.effective_access_source === "manual_override" ? "Unlimited (manual)" : "Unlimited (paid)";
   }
   return "Public Beta - 20 prompts/day";
+}
+
+function formatAccountStatus(status: AdminUserSummary["account_status"]) {
+  if (status === "suspended") return "Suspended";
+  if (status === "terminated") return "Terminated";
+  return "Active";
 }
 
 function previewFeedbackBody(body: string) {
@@ -73,7 +79,9 @@ export default function AdminUsersPage() {
     setSavingUserId(user.id);
     setError("");
     try {
-      const updatedUser = await updateAdminUserOverride(user.id, !user.manual_unlimited_override);
+      const updatedUser = await updateAdminUser(user.id, {
+        manual_unlimited_override: !user.manual_unlimited_override,
+      });
       setUsers((current) => current.map((entry) => (entry.id === updatedUser.id ? updatedUser : entry)));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to update user access.");
@@ -82,10 +90,29 @@ export default function AdminUsersPage() {
     }
   }
 
+  async function handleAccountStatusUpdate(user: AdminUserSummary, accountStatus: AdminUserSummary["account_status"]) {
+    if (accountStatus === "terminated") {
+      const confirmed = window.confirm(`Terminate ${user.email}? This will permanently disable the account.`);
+      if (!confirmed) return;
+    }
+
+    setSavingUserId(user.id);
+    setError("");
+    try {
+      const updatedUser = await updateAdminUser(user.id, { account_status: accountStatus });
+      setUsers((current) => current.map((entry) => (entry.id === updatedUser.id ? updatedUser : entry)));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to update account status.");
+    } finally {
+      setSavingUserId(null);
+    }
+  }
+
   const userStats = useMemo(() => {
     const manualCount = users.filter((user) => user.manual_unlimited_override).length;
     const unlimitedCount = users.filter((user) => user.effective_access_status === "unlimited").length;
-    return { manualCount, unlimitedCount };
+    const blockedCount = users.filter((user) => user.account_status !== "active").length;
+    return { manualCount, unlimitedCount, blockedCount };
   }, [users]);
 
   const feedbackStats = useMemo(() => {
@@ -176,7 +203,7 @@ export default function AdminUsersPage() {
 
         {activeTab === "users" ? (
           <>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
               <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/60">
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Users</p>
                 <p className="mt-3 text-2xl font-semibold text-ink dark:text-white">{users.length}</p>
@@ -189,6 +216,10 @@ export default function AdminUsersPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Manual Overrides</p>
                 <p className="mt-3 text-2xl font-semibold text-ink dark:text-white">{userStats.manualCount}</p>
               </div>
+              <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/60">
+                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Blocked Accounts</p>
+                <p className="mt-3 text-2xl font-semibold text-ink dark:text-white">{userStats.blockedCount}</p>
+              </div>
             </div>
 
             <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-950/60">
@@ -198,9 +229,10 @@ export default function AdminUsersPage() {
                     <tr className="text-left text-xs uppercase tracking-[0.25em] text-slate-400">
                       <th className="px-5 py-4 font-semibold">User</th>
                       <th className="px-5 py-4 font-semibold">Access</th>
+                      <th className="px-5 py-4 font-semibold">Account Status</th>
                       <th className="px-5 py-4 font-semibold">Manual Override</th>
                       <th className="px-5 py-4 font-semibold">Created</th>
-                      <th className="px-5 py-4 font-semibold text-right">Action</th>
+                      <th className="px-5 py-4 font-semibold text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 dark:divide-white/10">
@@ -222,6 +254,20 @@ export default function AdminUsersPage() {
                             <span
                               className={[
                                 "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
+                                user.account_status === "active"
+                                  ? "bg-brand-100 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
+                                  : user.account_status === "suspended"
+                                    ? "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-200"
+                                    : "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-200",
+                              ].join(" ")}
+                            >
+                              {formatAccountStatus(user.account_status)}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span
+                              className={[
+                                "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
                                 user.manual_unlimited_override
                                   ? "bg-brand-100 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
                                   : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300",
@@ -235,17 +281,49 @@ export default function AdminUsersPage() {
                           </td>
                           <td className="px-5 py-4 text-slate-600 dark:text-slate-300">{formatDate(user.created_at)}</td>
                           <td className="px-5 py-4 text-right">
-                            <Button
-                              variant={user.manual_unlimited_override ? "secondary" : "primary"}
-                              disabled={isSaving}
-                              onClick={() => void handleToggle(user)}
-                            >
-                              {isSaving
-                                ? "Saving..."
-                                : user.manual_unlimited_override
-                                  ? "Revoke unlimited"
-                                  : "Grant unlimited"}
-                            </Button>
+                            <div className="flex flex-wrap justify-end gap-2">
+                              <Button
+                                variant={user.manual_unlimited_override ? "secondary" : "primary"}
+                                className="px-4 py-2 text-xs"
+                                disabled={isSaving}
+                                onClick={() => void handleToggle(user)}
+                              >
+                                {isSaving
+                                  ? "Saving..."
+                                  : user.manual_unlimited_override
+                                    ? "Revoke unlimited"
+                                    : "Grant unlimited"}
+                              </Button>
+                              {user.account_status === "active" ? (
+                                <Button
+                                  variant="secondary"
+                                  className="px-4 py-2 text-xs"
+                                  disabled={isSaving}
+                                  onClick={() => void handleAccountStatusUpdate(user, "suspended")}
+                                >
+                                  Suspend
+                                </Button>
+                              ) : user.account_status === "suspended" ? (
+                                <Button
+                                  variant="secondary"
+                                  className="px-4 py-2 text-xs"
+                                  disabled={isSaving}
+                                  onClick={() => void handleAccountStatusUpdate(user, "active")}
+                                >
+                                  Unsuspend
+                                </Button>
+                              ) : null}
+                              {user.account_status !== "terminated" ? (
+                                <Button
+                                  variant="ghost"
+                                  className="border-rose-200/80 px-4 py-2 text-xs text-rose-600 hover:border-rose-300 hover:bg-rose-50/85 hover:text-rose-700 dark:border-rose-500/20 dark:text-rose-200 dark:hover:border-rose-400/28 dark:hover:bg-rose-500/10 dark:hover:text-rose-100"
+                                  disabled={isSaving}
+                                  onClick={() => void handleAccountStatusUpdate(user, "terminated")}
+                                >
+                                  Terminate
+                                </Button>
+                              ) : null}
+                            </div>
                           </td>
                         </tr>
                       );

@@ -6,10 +6,23 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.subscription import Subscription, SubscriptionStatus
-from app.models.user import PlanType, User
+from app.models.user import AccountStatus, PlanType, User
 from app.services.access import has_paid_unlimited_access, is_admin_email
 from app.services.auth import decode_session_token
 from app.services.usage import get_or_create_daily_usage
+
+
+def ensure_account_is_active(user: User) -> None:
+    if user.account_status == AccountStatus.SUSPENDED.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account is suspended. Contact support if you need help regaining access.",
+        )
+    if user.account_status == AccountStatus.TERMINATED.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your account has been terminated and can no longer access Veridia.",
+        )
 
 
 def get_current_user(
@@ -26,6 +39,7 @@ def get_current_user(
     user = db.query(User).filter(User.id == UUID(payload["sub"])).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found.")
+    ensure_account_is_active(user)
 
     if settings.beta_free_mode:
         return user

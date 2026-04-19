@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import build_user_response, get_current_user
+from app.api.deps import build_user_response, ensure_account_is_active, get_current_user
 from app.core.config import settings
 from app.db.session import get_db
 from app.models.feedback import FeedbackSubmission
@@ -21,6 +21,7 @@ def google_sign_in(payload: GoogleSignInRequest, response: Response, db: Session
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Google sign-in failed.") from exc
 
     user = get_or_create_user_from_google(db, claims)
+    ensure_account_is_active(user)
     token = create_session_token(user)
     capture_analytics_event(
         "user_signed_in",

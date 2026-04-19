@@ -72,6 +72,7 @@ export type AdminUserSummary = {
   id: string;
   email: string;
   full_name: string;
+  account_status: "active" | "suspended" | "terminated";
   effective_access_status: "unlimited" | "public_beta";
   effective_access_source: "manual_override" | "paid_unlimited" | "public_beta";
   manual_unlimited_override: boolean;

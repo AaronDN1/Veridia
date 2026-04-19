@@ -170,10 +170,10 @@ export function getAdminUsers() {
   });
 }
 
-export function updateAdminUserOverride(userId: string, manualUnlimitedOverride: boolean) {
+export function updateAdminUser(userId: string, payload: { manual_unlimited_override?: boolean; account_status?: "active" | "suspended" | "terminated" }) {
   return request<AdminUserSummary>(`/api/admin/users/${userId}`, {
     method: "PATCH",
-    body: JSON.stringify({ manual_unlimited_override: manualUnlimitedOverride })
+    body: JSON.stringify(payload)
   });
 }
 
