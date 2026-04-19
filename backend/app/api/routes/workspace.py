@@ -1,9 +1,12 @@
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user
+from app.core.config import settings
 from app.db.session import get_db
 from app.models.generated_output import GeneratedOutput
 from app.models.uploaded_file import UploadPurpose, UploadedFile
@@ -18,6 +21,7 @@ from app.schemas.workspace import (
     ToolTextResponse,
 )
 from app.services.files import save_upload, upload_to_response
+from app.services.graphing import cleanup_expired_graphs
 from app.services.openai_service import generate_lab_report
 from app.services.prompt_threads import (
     continue_prompt_thread,
@@ -36,6 +40,7 @@ router = APIRouter()
 
 @router.get("/dashboard", response_model=DashboardResponse)
 def dashboard(user=Depends(get_current_user), db: Session = Depends(get_db)):
+    cleanup_expired_graphs(db, user)
     recent_outputs = (
         db.query(GeneratedOutput)
         .filter(GeneratedOutput.user_id == user.id)
@@ -101,7 +106,7 @@ def prompt_tool(payload: PromptRequest, request: Request, user=Depends(get_curre
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"OpenAI prompt failed: {exc}") from exc
+        raise HTTPException(status_code=502, detail="AI request failed. Please try again.") from exc
     usage_remaining = record_usage(db, user, "ai_prompt")
     return {"content": content, "usage_remaining": usage_remaining, "thread": serialize_thread(thread)}
 
@@ -122,7 +127,7 @@ def create_prompt_thread_route(payload: PromptRequest, request: Request, user=De
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"OpenAI prompt failed: {exc}") from exc
+        raise HTTPException(status_code=502, detail="AI request failed. Please try again.") from exc
     usage_remaining = record_usage(db, user, "ai_prompt")
     return {"content": content, "usage_remaining": usage_remaining, "thread": serialize_thread(thread)}
 
@@ -149,7 +154,7 @@ def continue_prompt_thread_route(
     except HTTPException:
         raise
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"OpenAI prompt failed: {exc}") from exc
+        raise HTTPException(status_code=502, detail="AI request failed. Please try again.") from exc
     usage_remaining = record_usage(db, user, "ai_prompt")
     return {"content": content, "usage_remaining": usage_remaining, "thread": serialize_thread(thread)}
 
@@ -173,6 +178,25 @@ def get_prompt_thread(thread_id: UUID, user=Depends(get_current_user), db: Sessi
 def delete_prompt_thread_route(thread_id: UUID, user=Depends(get_current_user), db: Session = Depends(get_db)):
     delete_prompt_thread(db, user, thread_id)
     return {"success": True}
+
+
+@router.get("/uploads/{upload_id}/file/{stored_name}")
+def download_upload_file(
+    upload_id: UUID,
+    stored_name: str,
+    user=Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    upload = db.query(UploadedFile).filter(UploadedFile.id == upload_id, UploadedFile.user_id == user.id).first()
+    if not upload or upload.stored_name != stored_name:
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    path = Path(upload.file_path).resolve()
+    upload_root = settings.upload_dir.resolve()
+    if upload_root not in path.parents or not path.exists():
+        raise HTTPException(status_code=404, detail="File not found.")
+
+    return FileResponse(path, filename=upload.original_name, media_type=upload.mime_type)
 
 
 @router.post("/lab-helper", response_model=ToolTextResponse)

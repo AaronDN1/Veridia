@@ -50,6 +50,16 @@ class Settings(BaseSettings):
     def strip_optional_strings(cls, value: str) -> str:
         return value.strip() if isinstance(value, str) else value
 
+    @field_validator("secret_key")
+    @classmethod
+    def validate_secret_key(cls, value: str, info) -> str:
+        environment = (info.data.get("environment") or "development").strip().lower()
+        if environment != "development":
+            normalized = value.strip()
+            if len(normalized) < 32 or normalized.startswith("change-me"):
+                raise ValueError("SECRET_KEY must be a strong non-default value outside development.")
+        return value
+
 
 @lru_cache
 def get_settings() -> Settings:

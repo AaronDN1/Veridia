@@ -1,6 +1,7 @@
 import math
 import re
 import uuid
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import matplotlib
@@ -17,6 +18,7 @@ from app.schemas.workspace import GraphRequest
 matplotlib.use("Agg")
 
 SAFE_EQUATION_PATTERN = re.compile(r"^[0-9xX\+\-\*\/\^\(\)\.\s,sincotaepqrlgmn]*$")
+GRAPH_RETENTION_DAYS = 14
 SAFE_NAMESPACE = {
     "x": None,
     "sin": np.sin,
@@ -30,6 +32,35 @@ SAFE_NAMESPACE = {
 }
 
 
+def get_graph_retention_cutoff() -> datetime:
+    return datetime.utcnow() - timedelta(days=GRAPH_RETENTION_DAYS)
+
+
+def cleanup_expired_graphs(db: Session, user: User | None = None) -> int:
+    cutoff = get_graph_retention_cutoff()
+    query = db.query(GeneratedOutput).filter(
+        GeneratedOutput.output_type == OutputType.GRAPH,
+        GeneratedOutput.created_at < cutoff,
+    )
+    if user:
+        query = query.filter(GeneratedOutput.user_id == user.id)
+
+    expired_graphs = query.all()
+    if not expired_graphs:
+        return 0
+
+    deleted_count = len(expired_graphs)
+    for graph in expired_graphs:
+        if graph.asset_url:
+            file_name = graph.asset_url.rsplit("/", 1)[-1]
+            graph_path = Path(settings.graphs_dir) / file_name
+            if graph_path.exists():
+                graph_path.unlink()
+        db.delete(graph)
+    db.commit()
+    return deleted_count
+
+
 def _evaluate_equation(equation: str, x_values: np.ndarray) -> np.ndarray:
     normalized = equation.replace("^", "**").replace("X", "x")
     if not SAFE_EQUATION_PATTERN.match(normalized.replace("**", "")):
@@ -40,6 +71,7 @@ def _evaluate_equation(equation: str, x_values: np.ndarray) -> np.ndarray:
 
 
 def generate_graph(db: Session, user: User, request: GraphRequest) -> str:
+    cleanup_expired_graphs(db, user)
     fig, ax = plt.subplots(figsize=(10, 6), dpi=160)
     ax.set_title(request.title)
     ax.set_xlabel(request.x_label)
@@ -65,15 +97,15 @@ def generate_graph(db: Session, user: User, request: GraphRequest) -> str:
     fig.savefig(output_path, bbox_inches="tight", facecolor="#ffffff")
     plt.close(fig)
 
-    image_url = f"{settings.api_url}/storage/graphs/{file_name}"
-    db.add(
-        GeneratedOutput(
-            user_id=user.id,
-            output_type=OutputType.GRAPH,
-            title=request.title,
-            content=f"Generated graph for {request.title}",
-            asset_url=image_url,
-        )
+    output = GeneratedOutput(
+        user_id=user.id,
+        output_type=OutputType.GRAPH,
+        title=request.title,
+        content=f"Generated graph for {request.title}",
     )
+    db.add(output)
+    db.flush()
+    image_url = f"{settings.api_url}/api/graphing/outputs/{output.id}/file/{file_name}"
+    output.asset_url = image_url
     db.commit()
     return image_url

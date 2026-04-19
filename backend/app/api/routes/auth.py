@@ -43,7 +43,7 @@ def google_sign_in(payload: GoogleSignInRequest, response: Response, db: Session
         key=settings.session_cookie_name,
         value=token,
         httponly=True,
-        secure=False,
+        secure=settings.app_url.startswith("https://"),
         samesite="lax",
         max_age=60 * 60 * 24 * 7,
     )

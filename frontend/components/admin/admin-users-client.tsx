@@ -50,12 +50,12 @@ export function AdminUsersClient({ initialUsers, initialFeedbackItems }: Props) 
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<AdminTab>("users");
   const [users, setUsers] = useState<AdminUserSummary[]>(initialUsers);
-  const [feedbackItems] = useState<FeedbackSubmission[]>(initialFeedbackItems);
   const [error, setError] = useState("");
   const [savingUserId, setSavingUserId] = useState<string | null>(null);
   const [selectedFeedbackId, setSelectedFeedbackId] = useState<string | null>(initialFeedbackItems[0]?.id ?? null);
+  const feedbackItems = initialFeedbackItems;
 
-  async function handleUnauthorized(err: unknown) {
+  function handleUnauthorized(err: unknown) {
     const message = err instanceof Error ? err.message : "Unauthorized access.";
     if (isUnauthorizedError(message)) {
       router.replace("/");
@@ -74,7 +74,7 @@ export function AdminUsersClient({ initialUsers, initialFeedbackItems }: Props) 
       });
       setUsers((current) => current.map((entry) => (entry.id === updatedUser.id ? updatedUser : entry)));
     } catch (err) {
-      if (await handleUnauthorized(err)) return;
+      if (handleUnauthorized(err)) return;
       setError(err instanceof Error ? err.message : "Unable to update user access.");
     } finally {
       setSavingUserId(null);
@@ -95,7 +95,7 @@ export function AdminUsersClient({ initialUsers, initialFeedbackItems }: Props) 
       const updatedUser = await updateAdminUser(user.id, { account_status: accountStatus });
       setUsers((current) => current.map((entry) => (entry.id === updatedUser.id ? updatedUser : entry)));
     } catch (err) {
-      if (await handleUnauthorized(err)) return;
+      if (handleUnauthorized(err)) return;
       setError(err instanceof Error ? err.message : "Unable to update account status.");
     } finally {
       setSavingUserId(null);

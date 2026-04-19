@@ -21,7 +21,7 @@ from app.services.analytics import capture_analytics_event
 from app.services.openai_service import create_thread_completion
 
 
-HISTORY_WINDOW_DAYS = 14
+THREAD_RETENTION_DAYS = 14
 RECENT_THREAD_LIMIT = 3
 
 
@@ -73,7 +73,28 @@ def serialize_thread_summary(thread: PromptConversationThread) -> PromptConversa
     )
 
 
-def get_thread_or_404(db: Session, user: User, thread_id: UUID) -> PromptConversationThread:
+def get_thread_retention_cutoff() -> datetime:
+    return datetime.utcnow() - timedelta(days=THREAD_RETENTION_DAYS)
+
+
+def cleanup_expired_threads(db: Session, user: User | None = None) -> int:
+    cutoff = get_thread_retention_cutoff()
+    query = db.query(PromptConversationThread).filter(PromptConversationThread.updated_at < cutoff)
+    if user:
+        query = query.filter(PromptConversationThread.user_id == user.id)
+
+    expired_threads = query.all()
+    if not expired_threads:
+        return 0
+
+    deleted_count = len(expired_threads)
+    for thread in expired_threads:
+        db.delete(thread)
+    db.commit()
+    return deleted_count
+
+
+def _get_thread_or_404(db: Session, user: User, thread_id: UUID) -> PromptConversationThread:
     thread = (
         db.query(PromptConversationThread)
         .options(selectinload(PromptConversationThread.messages))
@@ -85,6 +106,11 @@ def get_thread_or_404(db: Session, user: User, thread_id: UUID) -> PromptConvers
     return thread
 
 
+def get_thread_or_404(db: Session, user: User, thread_id: UUID) -> PromptConversationThread:
+    cleanup_expired_threads(db, user)
+    return _get_thread_or_404(db, user, thread_id)
+
+
 def create_prompt_thread(
     db: Session,
     user: User,
@@ -93,6 +119,7 @@ def create_prompt_thread(
     uploads: list[UploadedFile],
     session_id: str | None = None,
 ) -> tuple[PromptConversationThread, str]:
+    cleanup_expired_threads(db, user)
     assistant_content = create_thread_completion(subject=subject, prompt=prompt, uploads=uploads)
     now = datetime.utcnow()
     assistant_at = now + timedelta(microseconds=1)
@@ -155,7 +182,7 @@ def create_prompt_thread(
             "thread_message_count": 2,
         },
     )
-    return get_thread_or_404(db, user, thread.id), assistant_content
+    return _get_thread_or_404(db, user, thread.id), assistant_content
 
 
 def continue_prompt_thread(
@@ -166,7 +193,8 @@ def continue_prompt_thread(
     uploads: list[UploadedFile],
     session_id: str | None = None,
 ) -> tuple[PromptConversationThread, str]:
-    thread = get_thread_or_404(db, user, thread_id)
+    cleanup_expired_threads(db, user)
+    thread = _get_thread_or_404(db, user, thread_id)
     ordered_messages = sorted(thread.messages, key=lambda message: message.created_at)
     assistant_content = create_thread_completion(
         subject=thread.subject,
@@ -215,10 +243,11 @@ def continue_prompt_thread(
             "thread_message_count": len(ordered_messages) + 2,
         },
     )
-    return get_thread_or_404(db, user, thread.id), assistant_content
+    return _get_thread_or_404(db, user, thread.id), assistant_content
 
 
 def list_recent_threads(db: Session, user: User) -> list[PromptConversationThreadSummary]:
+    cleanup_expired_threads(db, user)
     threads = (
         db.query(PromptConversationThread)
         .options(selectinload(PromptConversationThread.messages))
@@ -231,7 +260,8 @@ def list_recent_threads(db: Session, user: User) -> list[PromptConversationThrea
 
 
 def list_history_threads(db: Session, user: User) -> list[PromptConversationThreadSummary]:
-    cutoff = datetime.utcnow() - timedelta(days=HISTORY_WINDOW_DAYS)
+    cleanup_expired_threads(db, user)
+    cutoff = get_thread_retention_cutoff()
     threads = (
         db.query(PromptConversationThread)
         .options(selectinload(PromptConversationThread.messages))
@@ -243,6 +273,7 @@ def list_history_threads(db: Session, user: User) -> list[PromptConversationThre
 
 
 def delete_prompt_thread(db: Session, user: User, thread_id: UUID) -> None:
-    thread = get_thread_or_404(db, user, thread_id)
+    cleanup_expired_threads(db, user)
+    thread = _get_thread_or_404(db, user, thread_id)
     db.delete(thread)
     db.commit()

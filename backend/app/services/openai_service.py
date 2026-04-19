@@ -1,6 +1,3 @@
-from pathlib import Path
-
-import openai
 from fastapi import HTTPException
 from openai import OpenAI
 from sqlalchemy.orm import Session
@@ -15,12 +12,6 @@ from app.services.files import extract_file_context
 
 
 client = OpenAI(api_key=settings.openai_api_key)
-
-print(f"[SigmaSolve] openai_service loaded from: {Path(__file__).resolve()}")
-print(f"[SigmaSolve] openai package path: {getattr(openai, '__file__', 'unknown')}")
-print(f"[SigmaSolve] openai package version: {getattr(openai, '__version__', 'unknown')}")
-print(f"[SigmaSolve] OpenAI client has .chat: {hasattr(client, 'chat')}")
-print(f"[SigmaSolve] OpenAI client has .responses: {hasattr(client, 'responses')}")
 
 DEFAULT_SYSTEM_PROMPT = """
 You are Sigma Solve, a patient STEM professor and tutor.
@@ -104,7 +95,7 @@ def generate_prompt_response(db: Session, user: User, request: PromptRequest, up
     try:
         text = _create_chat_completion(prompt_text)
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"OpenAI prompt failed: {str(e)}") from e
+        raise HTTPException(status_code=502, detail="AI request failed. Please try again.") from e
     db.add(GeneratedOutput(user_id=user.id, output_type=OutputType.AI_PROMPT, title=request.subject, content=text))
     db.commit()
     return text
@@ -148,7 +139,7 @@ Be formal, specific, and make use of the supplied details and file context.
     try:
         text = _create_chat_completion(full_prompt)
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"OpenAI prompt failed: {str(e)}") from e
+        raise HTTPException(status_code=502, detail="AI request failed. Please try again.") from e
     db.add(
         GeneratedOutput(
             user_id=user.id,
