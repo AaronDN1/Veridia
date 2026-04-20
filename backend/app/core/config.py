@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str
     stripe_price_id: str
     session_cookie_name: str = "sigma_solve_session"
-    admin_email: str = "adnathans@gmail.com"
+    admin_email: str = ""
     beta_free_mode: bool = False
     storage_root: Path = STORAGE_ROOT
     upload_dir: Path = STORAGE_ROOT / "uploads"
