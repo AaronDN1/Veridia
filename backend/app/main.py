@@ -94,3 +94,14 @@ def on_startup() -> None:
 @app.get("/health")
 def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(
+        "app.main:app",
+        host=settings.resolved_server_host,
+        port=settings.port,
+        reload=settings.is_development,
+    )

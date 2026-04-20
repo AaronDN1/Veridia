@@ -49,3 +49,41 @@ Veridia is an AI-powered STEM learning workspace designed to support real academ
 ### Public Beta
 
 Veridia is currently in a public beta phase. The product is actively being refined through testing, iteration, and user feedback, and features may continue to evolve as the platform matures.
+
+## Deployment
+
+### Frontend on Vercel
+
+- Set `NEXT_PUBLIC_API_URL` to the public Render backend origin, for example `https://veridia-api.onrender.com`
+- Set `NEXT_PUBLIC_GOOGLE_CLIENT_ID`
+- Set `NEXT_PUBLIC_STRIPE_PRICE_ID`
+- Set `NEXT_PUBLIC_BETA_FREE_MODE`
+
+### Backend on Render
+
+- Start command: `python -m app.main`
+- The backend reads Render's runtime `PORT` automatically and binds to `0.0.0.0` outside development
+- Set `ENVIRONMENT=production`
+- Set `APP_URL` to the public Vercel frontend origin
+- Set `API_URL` to the public Render backend origin
+- Set `SECRET_KEY` to a strong random value
+- Set `DATABASE_URL` to the externally hosted Postgres connection string
+- Set `BACKEND_CORS_ORIGINS` to a comma-separated list of allowed frontend origins
+- Set `GOOGLE_CLIENT_ID`
+- Set `GOOGLE_CLIENT_SECRET`
+- Set `OPENAI_API_KEY`
+- Set `STRIPE_SECRET_KEY`
+- Set `STRIPE_WEBHOOK_SECRET`
+- Set `STRIPE_PRICE_ID`
+
+### Session Cookies
+
+- For Vercel-to-Render deployments, use `SESSION_COOKIE_SECURE=true` and `SESSION_COOKIE_SAMESITE=none`
+- Leave `SESSION_COOKIE_DOMAIN` unset unless you intentionally need a shared parent-domain cookie
+- Local development can continue using `SESSION_COOKIE_SECURE=false` and `SESSION_COOKIE_SAMESITE=lax`
+
+### File Storage
+
+- Veridia currently treats uploaded files and generated graphs as beta-stage filesystem assets stored under `STORAGE_ROOT`
+- The default backend storage path is local and therefore ephemeral on Render unless you attach a persistent disk
+- To use a Render disk later, point `STORAGE_ROOT` at the mounted disk path; `UPLOAD_DIR` and `GRAPHS_DIR` can stay under that root or be overridden explicitly

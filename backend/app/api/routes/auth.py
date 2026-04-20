@@ -39,12 +39,15 @@ def google_sign_in(payload: GoogleSignInRequest, response: Response, db: Session
             "auth_provider": "google",
         },
     )
+    cookie_domain = settings.session_cookie_domain or None
     response.set_cookie(
         key=settings.session_cookie_name,
         value=token,
         httponly=True,
-        secure=settings.app_url.startswith("https://"),
-        samesite="lax",
+        secure=settings.resolved_session_cookie_secure,
+        samesite=settings.resolved_session_cookie_samesite,
+        domain=cookie_domain,
+        path="/",
         max_age=60 * 60 * 24 * 7,
     )
     return {"user": build_user_response(db, user)}
@@ -57,7 +60,7 @@ def get_session(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie(settings.session_cookie_name)
+    response.delete_cookie(settings.session_cookie_name, domain=settings.session_cookie_domain or None, path="/")
     return {"success": True}
 
 
@@ -69,5 +72,5 @@ def delete_account(response: Response, user=Depends(get_current_user), db: Sessi
     )
     db.delete(user)
     db.commit()
-    response.delete_cookie(settings.session_cookie_name)
+    response.delete_cookie(settings.session_cookie_name, domain=settings.session_cookie_domain or None, path="/")
     return {"success": True}

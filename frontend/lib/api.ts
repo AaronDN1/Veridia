@@ -10,13 +10,13 @@ import type {
   UsageStatus
 } from "@/types";
 import { getAnalyticsHeaders, trackClientApiFailure } from "@/lib/analytics";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+import { getApiBaseUrl } from "@/lib/env";
 
 async function request<T>(path: string, init?: RequestInit, analyticsFeature?: "ai_prompt" | "lab_helper" | "graphing"): Promise<T> {
+  const apiUrl = getApiBaseUrl();
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, {
+    response = await fetch(`${apiUrl}${path}`, {
       ...init,
       credentials: "include",
       headers: {
@@ -90,13 +90,14 @@ export function createCheckoutSession() {
 }
 
 export async function uploadFile(file: File, purpose: "ai_prompt" | "lab_helper"): Promise<UploadedFile> {
+  const apiUrl = getApiBaseUrl();
   const formData = new FormData();
   formData.append("file", file);
   formData.append("purpose", purpose);
 
   let response: Response;
   try {
-    response = await fetch(`${API_URL}/api/workspace/upload`, {
+    response = await fetch(`${apiUrl}/api/workspace/upload`, {
       method: "POST",
       credentials: "include",
       headers: {
