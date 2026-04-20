@@ -54,8 +54,12 @@ class Settings(BaseSettings):
     @classmethod
     def split_origins(cls, value: list[str] | str) -> list[str]:
         if isinstance(value, list):
-            return [item.strip().rstrip("/") for item in value if item.strip()]
-        return [item.strip().rstrip("/") for item in value.split(",") if item.strip()]
+            origins = [item.strip().rstrip("/") for item in value if item.strip()]
+        else:
+            origins = [item.strip().rstrip("/") for item in value.split(",") if item.strip()]
+        if any(origin == "*" for origin in origins):
+            raise ValueError("BACKEND_CORS_ORIGINS cannot contain '*' when credentials are enabled.")
+        return origins
 
     @field_validator("environment", mode="before")
     @classmethod
@@ -66,6 +70,11 @@ class Settings(BaseSettings):
     @classmethod
     def normalize_urls(cls, value: str) -> str:
         return value.strip().rstrip("/") if isinstance(value, str) else value
+
+    @field_validator("session_cookie_samesite", mode="before")
+    @classmethod
+    def normalize_session_cookie_samesite(cls, value: str | None) -> str | None:
+        return value.strip().lower() if isinstance(value, str) else value
 
     @field_validator("google_client_id", "admin_email", "server_host", "session_cookie_domain", mode="before")
     @classmethod

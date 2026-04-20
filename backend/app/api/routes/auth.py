@@ -13,6 +13,13 @@ from app.services.auth import create_session_token, get_or_create_user_from_goog
 router = APIRouter()
 
 
+def _session_cookie_options() -> dict[str, str | bool | None]:
+    return {
+        "domain": settings.session_cookie_domain or None,
+        "path": "/",
+    }
+
+
 @router.post("/google", response_model=SessionResponse)
 def google_sign_in(payload: GoogleSignInRequest, response: Response, db: Session = Depends(get_db)):
     try:
@@ -39,16 +46,14 @@ def google_sign_in(payload: GoogleSignInRequest, response: Response, db: Session
             "auth_provider": "google",
         },
     )
-    cookie_domain = settings.session_cookie_domain or None
     response.set_cookie(
         key=settings.session_cookie_name,
         value=token,
         httponly=True,
         secure=settings.resolved_session_cookie_secure,
         samesite=settings.resolved_session_cookie_samesite,
-        domain=cookie_domain,
-        path="/",
         max_age=60 * 60 * 24 * 7,
+        **_session_cookie_options(),
     )
     return {"user": build_user_response(db, user)}
 
@@ -60,7 +65,7 @@ def get_session(user=Depends(get_current_user), db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(response: Response):
-    response.delete_cookie(settings.session_cookie_name, domain=settings.session_cookie_domain or None, path="/")
+    response.delete_cookie(settings.session_cookie_name, **_session_cookie_options())
     return {"success": True}
 
 
@@ -72,5 +77,5 @@ def delete_account(response: Response, user=Depends(get_current_user), db: Sessi
     )
     db.delete(user)
     db.commit()
-    response.delete_cookie(settings.session_cookie_name, domain=settings.session_cookie_domain or None, path="/")
+    response.delete_cookie(settings.session_cookie_name, **_session_cookie_options())
     return {"success": True}
