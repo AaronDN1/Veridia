@@ -767,8 +767,40 @@ $$
   },
 ];
 
+const relatedTopicSlugsByCategory: Record<string, string[]> = {
+  geometry: ["unit-circle-explained", "how-to-graph-a-function"],
+  mechanics: ["newtons-second-law", "work-and-energy-basics"],
+  "electricity-and-magnetism": ["work-and-energy-basics", "newtons-second-law"],
+  chemistry: ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
+  "organic-chemistry": ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
+  biology: ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
+  "differential-equations": ["derivative-of-x-squared", "integration-by-parts"],
+  "computer-science": ["what-is-a-matrix", "how-to-graph-a-function"],
+  "data-structures": ["what-is-a-matrix", "how-to-graph-a-function"],
+  algorithms: ["how-to-graph-a-function", "mean-vs-median-vs-mode"],
+};
+
+export function getCategory(categorySlug: string) {
+  return studyCategories.find((category) => category.slug === categorySlug);
+}
+
+export function getCategoryHref(category: Pick<StudyCategory, "slug">) {
+  return `/study-topics/${category.slug}`;
+}
+
 export function getTopicsForCategory(categorySlug: string) {
   return studyTopics.filter((topic) => topic.categorySlug === categorySlug);
+}
+
+export function getRelatedTopicsForCategory(categorySlug: string) {
+  return (relatedTopicSlugsByCategory[categorySlug] ?? [])
+    .map((slug) => studyTopics.find((topic) => topic.slug === slug))
+    .filter((topic): topic is StudyTopic => Boolean(topic));
+}
+
+export function getVisibleTopicsForCategory(categorySlug: string) {
+  const topics = getTopicsForCategory(categorySlug);
+  return topics.length ? topics : getRelatedTopicsForCategory(categorySlug);
 }
 
 export function getTopic(categorySlug: string, slug: string) {

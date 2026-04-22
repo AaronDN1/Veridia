@@ -1,32 +1,16 @@
 import { TopicCard } from "@/components/study-topics/topic-card";
-import { getTopicsForCategory, studyTopics, type StudyCategory, type StudyTopic } from "@/lib/study-topics";
+import { getTopicsForCategory, getVisibleTopicsForCategory, type StudyCategory } from "@/lib/study-topics";
 
 type Props = {
   category: StudyCategory;
 };
 
-const relatedTopicSlugsByCategory: Record<string, string[]> = {
-  geometry: ["unit-circle-explained", "how-to-graph-a-function"],
-  mechanics: ["newtons-second-law", "work-and-energy-basics"],
-  "electricity-and-magnetism": ["work-and-energy-basics", "newtons-second-law"],
-  chemistry: ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
-  "organic-chemistry": ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
-  biology: ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
-  "differential-equations": ["derivative-of-x-squared", "integration-by-parts"],
-  "computer-science": ["what-is-a-matrix", "how-to-graph-a-function"],
-  "data-structures": ["what-is-a-matrix", "how-to-graph-a-function"],
-  algorithms: ["how-to-graph-a-function", "mean-vs-median-vs-mode"],
-};
-
 export function CategorySection({ category }: Props) {
   const topics = getTopicsForCategory(category.slug);
-  const relatedTopics = (relatedTopicSlugsByCategory[category.slug] ?? [])
-    .map((slug) => studyTopics.find((topic) => topic.slug === slug))
-    .filter((topic): topic is StudyTopic => Boolean(topic));
-  const visibleTopics = topics.length ? topics : relatedTopics;
+  const visibleTopics = getVisibleTopicsForCategory(category.slug);
 
   return (
-    <section id={category.slug} className="scroll-mt-28 rounded-lg border border-slate-200/80 bg-white/58 p-5 shadow-[0_16px_42px_rgba(16,32,22,0.07)] dark:border-white/10 dark:bg-white/[0.035] md:p-6">
+    <section className="rounded-lg border border-slate-200/80 bg-white/58 p-5 shadow-[0_16px_42px_rgba(16,32,22,0.07)] dark:border-white/10 dark:bg-white/[0.035] md:p-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-2xl font-semibold text-ink dark:text-white">{category.name}</h2>

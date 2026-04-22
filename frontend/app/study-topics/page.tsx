@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 
 import { MarketingNav } from "@/components/landing/marketing-nav";
-import { CategorySection } from "@/components/study-topics/category-section";
-import { StudyTopicSearch } from "@/components/study-topics/study-topic-search";
-import { studyCategories, studyTopics } from "@/lib/study-topics";
+import { CategorySearch } from "@/components/study-topics/category-search";
+import { studyCategories } from "@/lib/study-topics";
 
 export const metadata: Metadata = {
   title: "Study Topics | Veridia",
@@ -26,25 +25,7 @@ export default function StudyTopicsPage() {
         </div>
 
         <div className="mt-8">
-          <StudyTopicSearch topics={studyTopics} />
-        </div>
-
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {studyCategories.map((category) => (
-            <a
-              key={category.slug}
-              href={`#${category.slug}`}
-              className="rounded-lg border border-slate-200/80 bg-white/58 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-brand-200 hover:bg-white hover:text-brand-700 dark:border-white/10 dark:bg-white/[0.035] dark:text-slate-200 dark:hover:border-brand-300/24 dark:hover:text-brand-100"
-            >
-              {category.name}
-            </a>
-          ))}
-        </div>
-
-        <div className="mt-12 space-y-6">
-          {studyCategories.map((category) => (
-            <CategorySection key={category.slug} category={category} />
-          ))}
+          <CategorySearch categories={studyCategories} />
         </div>
       </section>
     </main>
