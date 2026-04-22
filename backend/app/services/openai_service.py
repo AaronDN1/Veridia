@@ -32,6 +32,15 @@ Write like a calm professor helping a student understand the solution, not like 
 Prioritize teaching, clarity, and academic honesty over shortcut answers.
 """.strip()
 
+SEO_SYSTEM_PROMPT = """
+Explain the following STEM problem clearly and step-by-step like a professor.
+Ensure the explanation is beginner-friendly but technically correct.
+Format all math cleanly and avoid raw LaTeX output where possible.
+When math is needed, format inline math with single dollar signs and block equations with double dollar signs.
+Use semantic Markdown sections that can be rendered on an SEO content page.
+Keep the response focused on the problem statement, the solution, and the key idea.
+""".strip()
+
 
 def _build_file_input(upload: UploadedFile) -> dict[str, str | dict]:
     context = extract_file_context(upload)
@@ -55,16 +64,36 @@ def build_prompt_user_message(subject: str, prompt: str, uploads: list[UploadedF
     return "\n".join(sections).strip()
 
 
-def _create_chat_completion(prompt_text: str) -> str:
+def _create_chat_completion(prompt_text: str, system_prompt: str = DEFAULT_SYSTEM_PROMPT) -> str:
     response = client.chat.completions.create(
         model=settings.openai_model,
         messages=[
-            {"role": "system", "content": DEFAULT_SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": prompt_text},
         ],
     )
     text = response.choices[0].message.content or ""
     return text.strip()
+
+
+def generate_seo_content(topic: str, category: str, problem_statement: str) -> str:
+    prompt_text = f"""
+Category: {category}
+Topic: {topic}
+
+Problem statement:
+{problem_statement}
+
+Return a clear, original explanation with:
+- a brief restatement of the problem
+- step-by-step solution
+- a concise final answer or takeaway
+""".strip()
+
+    try:
+        return _create_chat_completion(prompt_text, SEO_SYSTEM_PROMPT)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail="SEO content generation failed. Please try again.") from e
 
 
 def create_thread_completion(

@@ -14,8 +14,8 @@ export function MarketingNav() {
   const pathname = usePathname();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState<"home" | "features" | "how-it-works" | "about">(
-    pathname === "/about" ? "about" : "home"
+  const [activeSection, setActiveSection] = useState<"home" | "features" | "how-it-works" | "study-topics" | "about">(
+    pathname === "/about" ? "about" : pathname.startsWith("/study-topics") ? "study-topics" : "home"
   );
   const featuresHref = pathname === "/" ? "#features" : "/#features";
   const howItWorksHref = pathname === "/" ? "#how-it-works" : "/#how-it-works";
@@ -41,6 +41,10 @@ export function MarketingNav() {
   useEffect(() => {
     if (pathname === "/about") {
       setActiveSection("about");
+      return;
+    }
+    if (pathname.startsWith("/study-topics")) {
+      setActiveSection("study-topics");
       return;
     }
     if (pathname !== "/") {
@@ -76,7 +80,7 @@ export function MarketingNav() {
     return () => observer.disconnect();
   }, [pathname]);
 
-  function handleSectionClick(section: "home" | "features" | "how-it-works" | "about") {
+  function handleSectionClick(section: "home" | "features" | "how-it-works" | "study-topics" | "about") {
     setActiveSection(section);
   }
 
@@ -107,7 +111,7 @@ export function MarketingNav() {
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-2 justify-self-center rounded-full border border-slate-200/80 bg-white/70 px-2 py-1 text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:border-white/9 dark:bg-white/[0.045] dark:text-slate-300 md:flex">
+          <nav className="hidden items-center justify-self-center rounded-full border border-slate-200/80 bg-white/70 px-2 py-1 text-slate-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:border-white/9 dark:bg-white/[0.045] dark:text-slate-300 md:flex md:justify-between md:gap-1 lg:gap-2">
             <Link href="/" className={navItemClass(pathname === "/" && activeSection === "home")} onClick={() => handleSectionClick("home")}>
               Home
             </Link>
@@ -116,6 +120,9 @@ export function MarketingNav() {
             </Link>
             <Link href={howItWorksHref} className={navItemClass(pathname === "/" && activeSection === "how-it-works")} onClick={() => handleSectionClick("how-it-works")}>
               How it works
+            </Link>
+            <Link href="/study-topics" className={navItemClass(pathname.startsWith("/study-topics") || activeSection === "study-topics")} onClick={() => handleSectionClick("study-topics")}>
+              Study Topics
             </Link>
             <Link href="/about" className={navItemClass(pathname === "/about" || activeSection === "about")} onClick={() => handleSectionClick("about")}>
               About Me
@@ -126,6 +133,11 @@ export function MarketingNav() {
             <Link href="/" className="md:hidden">
               <Button variant="ghost" className="text-slate-600 dark:border-white/8 dark:bg-white/[0.035] dark:text-slate-200 dark:hover:border-brand-300/16 dark:hover:bg-white/[0.05] dark:hover:text-white">
                 Home
+              </Button>
+            </Link>
+            <Link href="/study-topics" className="hidden sm:block md:hidden">
+              <Button variant="ghost" className="text-slate-600 dark:border-white/8 dark:bg-white/[0.035] dark:text-slate-200 dark:hover:border-brand-300/16 dark:hover:bg-white/[0.05] dark:hover:text-white">
+                Topics
               </Button>
             </Link>
             <button
