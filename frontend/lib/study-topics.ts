@@ -1,8 +1,13 @@
-export type StudyTopic = {
+export type StudyTopicSeed = {
   title: string;
   slug: string;
-  category: string;
   categorySlug: string;
+  keyIdea: string;
+  formula?: string;
+};
+
+export type StudyTopic = StudyTopicSeed & {
+  category: string;
   description: string;
   problem: string;
   metaDescription: string;
@@ -16,769 +21,559 @@ export type StudyCategory = {
 };
 
 export const studyCategories: StudyCategory[] = [
-  { name: "Calculus", slug: "calculus", description: "Limits, derivatives, integrals, and core ideas from single-variable calculus." },
-  { name: "Algebra", slug: "algebra", description: "Equations, expressions, factoring, and symbolic problem solving." },
-  { name: "Geometry", slug: "geometry", description: "Shapes, angles, area, volume, similarity, and coordinate geometry." },
-  { name: "Trigonometry", slug: "trigonometry", description: "Angles, triangles, trig functions, identities, and the unit circle." },
-  { name: "Physics", slug: "physics", description: "Foundational physics concepts explained with equations and intuition." },
-  { name: "Mechanics", slug: "mechanics", description: "Motion, forces, energy, momentum, and Newtonian systems." },
-  { name: "Electricity & Magnetism", slug: "electricity-and-magnetism", description: "Charge, fields, circuits, magnetism, and electromagnetic ideas." },
-  { name: "Chemistry", slug: "chemistry", description: "Matter, reactions, stoichiometry, bonding, and chemical reasoning." },
-  { name: "Organic Chemistry", slug: "organic-chemistry", description: "Structure, reactions, mechanisms, and functional groups." },
-  { name: "Biology", slug: "biology", description: "Cells, genetics, evolution, physiology, and experimental biology." },
-  { name: "Statistics", slug: "statistics", description: "Data summaries, probability, inference, and statistical thinking." },
-  { name: "Linear Algebra", slug: "linear-algebra", description: "Vectors, matrices, systems, transformations, and vector spaces." },
-  { name: "Differential Equations", slug: "differential-equations", description: "Equations involving rates of change and their solutions." },
-  { name: "Computer Science", slug: "computer-science", description: "Programming concepts, computation, systems, and problem solving." },
-  { name: "Data Structures", slug: "data-structures", description: "Arrays, lists, stacks, queues, trees, graphs, and hash tables." },
-  { name: "Algorithms", slug: "algorithms", description: "Efficient procedures for searching, sorting, optimization, and analysis." },
-  { name: "Lab Reports", slug: "lab-reports", description: "Scientific writing, methods, results, analysis, and conclusions." },
-  { name: "Graphing / Data Visualization", slug: "graphing-data-visualization", description: "Graphs, functions, plots, charts, and visual interpretation of data." },
+  { name: "Algebra", slug: "algebra", description: "Equations, factoring, inequalities, slopes, and symbolic problem solving." },
+  { name: "College Algebra", slug: "college-algebra", description: "Functions, rational expressions, quadratics, systems, and advanced algebra foundations." },
+  { name: "Precalculus", slug: "precalculus", description: "Functions, exponents, radicals, polar coordinates, and parametric equations." },
+  { name: "Calculus", slug: "calculus", description: "Derivatives, integrals, limits, rates of change, and optimization basics." },
+  { name: "Calculus 2", slug: "calculus-2", description: "Integration techniques, applications of integrals, improper integrals, and series." },
+  { name: "Calculus 3", slug: "calculus-3", description: "Partial derivatives, multiple integrals, and multivariable calculus ideas." },
+  { name: "Differential Equations", slug: "differential-equations", description: "Equations involving rates of change and methods for solving them." },
+  { name: "Linear Algebra", slug: "linear-algebra", description: "Matrices, determinants, elimination, eigenvalues, and vector-based reasoning." },
+  { name: "Trigonometry", slug: "trigonometry", description: "Unit circle, trig functions, identities, equations, and triangle solving." },
+  { name: "Geometry", slug: "geometry", description: "Shapes, angles, coordinate geometry, and visual mathematical reasoning." },
+  { name: "Statistics", slug: "statistics", description: "Data summaries, standard deviation, distributions, tests, and intervals." },
+  { name: "Probability", slug: "probability", description: "Counting, chance, conditional probability, Bayes' theorem, and combinations." },
+  { name: "Discrete Math", slug: "discrete-math", description: "Induction, recurrence relations, logic, counting, and proof foundations." },
+  { name: "Physics", slug: "physics", description: "Core physical quantities, units, motion, forces, energy, and conceptual models." },
+  { name: "Mechanics", slug: "mechanics", description: "Newton's laws, free body diagrams, energy, momentum, torque, and rotation." },
+  { name: "Electricity and Magnetism", slug: "electricity-and-magnetism", description: "Electric fields, voltage, capacitance, magnetic fields, and induction." },
+  { name: "Thermodynamics", slug: "thermodynamics", description: "Heat, energy transfer, thermal systems, and the laws of thermodynamics." },
+  { name: "Waves and Optics", slug: "waves-and-optics", description: "Wave motion, frequency, wavelength, simple harmonic motion, and light behavior." },
+  { name: "Chemistry", slug: "chemistry", description: "pH, equilibrium, redox, reactions, and core chemical reasoning." },
+  { name: "General Chemistry", slug: "general-chemistry", description: "Balancing equations, molarity, gases, stoichiometry, and introductory chemistry." },
+  { name: "Organic Chemistry", slug: "organic-chemistry", description: "Functional groups, structure, bonding, and organic molecule recognition." },
+  { name: "Biology", slug: "biology", description: "DNA, photosynthesis, cellular respiration, genetics, and life science foundations." },
+  { name: "Cell Biology", slug: "cell-biology", description: "Cell division, cellular energy, DNA processes, and cell-level mechanisms." },
+  { name: "Computer Science", slug: "computer-science", description: "Programming concepts, computation, data organization, and algorithmic thinking." },
+  { name: "Programming Basics", slug: "programming-basics", description: "Variables, control flow, recursion, iteration, and beginner programming ideas." },
+  { name: "Data Structures", slug: "data-structures", description: "Arrays, lists, stacks, linked lists, and ways to organize data." },
+  { name: "Algorithms", slug: "algorithms", description: "Big O notation, sorting, recursion, and efficient problem-solving strategies." },
+  { name: "Engineering", slug: "engineering", description: "Applied STEM ideas used in mechanics, circuits, materials, and system design." },
+  { name: "Circuits", slug: "circuits", description: "Ohm's law, Kirchhoff's laws, series circuits, parallel circuits, and circuit analysis." },
+  { name: "Materials Science", slug: "materials-science", description: "Matter, structure, thermal behavior, and material properties in applied science." },
+  { name: "Lab Reports", slug: "lab-reports", description: "Data, observations, uncertainty, results, and clear scientific reporting." },
+  { name: "Scientific Writing", slug: "scientific-writing", description: "Clear explanations, evidence-based conclusions, and technical communication." },
+  { name: "Graphing", slug: "graphing", description: "Linear graphs, trig graphs, function behavior, and visual problem solving." },
+  { name: "Data Visualization", slug: "data-visualization", description: "Charts, distributions, visual summaries, and communicating data clearly." },
 ];
 
-export const studyTopics: StudyTopic[] = [
-  {
-    title: "What is the derivative of x^2?",
-    slug: "derivative-of-x-squared",
-    category: "Calculus",
-    categorySlug: "calculus",
-    description: "Learn why the derivative of x squared is 2x using the power rule and the limit definition.",
-    problem: "Find the derivative of $f(x) = x^2$ and explain what the result means.",
-    metaDescription: "Step-by-step explanation of the derivative of x squared, including the power rule, the limit definition, and the meaning of 2x.",
-    content: `
-## Problem Statement
-
-Find the derivative of $f(x) = x^2$ and explain what the derivative means.
-
-## Step-by-Step Solution
-
-The derivative tells us the instantaneous rate of change of a function. For $f(x) = x^2$, we want to know how quickly the output changes at any input $x$.
-
-Using the power rule:
-
-$$
-\\frac{d}{dx}x^n = nx^{n-1}
-$$
-
-Here, $n = 2$, so:
-
-$$
-\\frac{d}{dx}x^2 = 2x^{2-1} = 2x
-$$
-
-We can also see this from the limit definition:
-
-$$
-f'(x) = \\lim_{h \\to 0}\\frac{f(x+h)-f(x)}{h}
-$$
-
-Substitute $f(x) = x^2$:
-
-$$
-f'(x) = \\lim_{h \\to 0}\\frac{(x+h)^2-x^2}{h}
-$$
-
-Expand the numerator:
-
-$$
-(x+h)^2-x^2 = x^2+2xh+h^2-x^2 = 2xh+h^2
-$$
-
-So:
-
-$$
-f'(x) = \\lim_{h \\to 0}\\frac{2xh+h^2}{h}
-$$
-
-Factor out $h$:
-
-$$
-f'(x) = \\lim_{h \\to 0}(2x+h)
-$$
-
-Now let $h$ approach $0$:
-
-$$
-f'(x) = 2x
-$$
-
-## Final Answer
-
-The derivative of $x^2$ is:
-
-$$
-\\boxed{2x}
-$$
-
-This means the slope of the graph $y = x^2$ at any point $x$ is $2x$. For example, at $x=3$, the slope is $6$.
-`.trim(),
-  },
-  {
-    title: "How do you use integration by parts?",
-    slug: "integration-by-parts",
-    category: "Calculus",
-    categorySlug: "calculus",
-    description: "A clear walkthrough of integration by parts using the classic integral of x times e to the x.",
-    problem: "Use integration by parts to evaluate $\\int x e^x\\,dx$.",
-    metaDescription: "Learn integration by parts step by step with the example integral of x e to the x dx.",
-    content: `
-## Problem Statement
-
-Use integration by parts to evaluate:
-
-$$
-\\int x e^x\\,dx
-$$
-
-## Step-by-Step Solution
-
-Integration by parts is useful when an integral is a product of two expressions. The formula is:
-
-$$
-\\int u\\,dv = uv - \\int v\\,du
-$$
-
-For this problem, choose:
-
-$$
-u = x
-$$
-
-and:
-
-$$
-dv = e^x\\,dx
-$$
-
-Now compute $du$ and $v$:
-
-$$
-du = dx
-$$
-
-$$
-v = \\int e^x\\,dx = e^x
-$$
-
-Substitute into the integration by parts formula:
-
-$$
-\\int x e^x\\,dx = x e^x - \\int e^x\\,dx
-$$
-
-The remaining integral is straightforward:
-
-$$
-\\int e^x\\,dx = e^x
-$$
-
-Therefore:
-
-$$
-\\int x e^x\\,dx = x e^x - e^x + C
-$$
-
-Factor if desired:
-
-$$
-\\int x e^x\\,dx = e^x(x-1)+C
-$$
-
-## Final Answer
-
-$$
-\\boxed{\\int x e^x\\,dx = e^x(x-1)+C}
-$$
-
-The key idea is to choose $u$ as the part that becomes simpler when differentiated. Here, $x$ becomes $1$, which makes the integral easier.
-`.trim(),
-  },
-  {
-    title: "How do you solve quadratic equations?",
-    slug: "solving-quadratic-equations",
-    category: "Algebra",
-    categorySlug: "algebra",
-    description: "Solve quadratic equations with factoring and the quadratic formula.",
-    problem: "Solve $x^2 - 5x + 6 = 0$ and explain the method.",
-    metaDescription: "Step-by-step guide to solving quadratic equations, with factoring and the quadratic formula explained.",
-    content: `
-## Problem Statement
-
-Solve the quadratic equation:
-
-$$
-x^2 - 5x + 6 = 0
-$$
-
-## Step-by-Step Solution
-
-A quadratic equation has the general form:
-
-$$
-ax^2 + bx + c = 0
-$$
-
-For this equation:
-
-$$
-a = 1, \\quad b = -5, \\quad c = 6
-$$
-
-The fastest method here is factoring. We need two numbers that multiply to $6$ and add to $-5$.
-
-Those numbers are $-2$ and $-3$, because:
-
-$$
-(-2)(-3)=6
-$$
-
-and:
-
-$$
--2 + (-3) = -5
-$$
-
-So we can factor:
-
-$$
-x^2 - 5x + 6 = (x-2)(x-3)
-$$
-
-Now solve:
-
-$$
-(x-2)(x-3)=0
-$$
-
-By the zero product property, at least one factor must equal zero:
-
-$$
-x-2=0
-$$
-
-or:
-
-$$
-x-3=0
-$$
-
-Therefore:
-
-$$
-x=2
-$$
-
-or:
-
-$$
-x=3
-$$
-
-## Final Answer
-
-$$
-\\boxed{x=2 \\text{ or } x=3}
-$$
-
-If a quadratic does not factor nicely, use the quadratic formula:
-
-$$
-x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}
-$$
-`.trim(),
-  },
-  {
-    title: "What is Newton's second law?",
-    slug: "newtons-second-law",
-    category: "Physics",
-    categorySlug: "physics",
-    description: "Understand Newton's second law, force, mass, and acceleration with a simple example.",
-    problem: "Explain Newton's second law and find the acceleration of a 4 kg object pushed by a 20 N net force.",
-    metaDescription: "Newton's second law explained clearly with the formula F equals ma and a worked force, mass, and acceleration example.",
-    content: `
-## Problem Statement
-
-Explain Newton's second law and find the acceleration of a $4\\,\\text{kg}$ object pushed by a $20\\,\\text{N}$ net force.
-
-## Step-by-Step Solution
-
-Newton's second law says that the net force on an object equals its mass times its acceleration:
-
-$$
-F_{\\text{net}} = ma
-$$
-
-Here:
-
-- $F_{\\text{net}}$ is the net force in newtons
-- $m$ is mass in kilograms
-- $a$ is acceleration in meters per second squared
-
-We are given:
-
-$$
-F_{\\text{net}} = 20\\,\\text{N}
-$$
-
-and:
-
-$$
-m = 4\\,\\text{kg}
-$$
-
-We need to solve for acceleration, so rearrange the formula:
-
-$$
-a = \\frac{F_{\\text{net}}}{m}
-$$
-
-Substitute the values:
-
-$$
-a = \\frac{20}{4}
-$$
-
-So:
-
-$$
-a = 5\\,\\text{m/s}^2
-$$
-
-## Final Answer
-
-The acceleration is:
-
-$$
-\\boxed{5\\,\\text{m/s}^2}
-$$
-
-Newton's second law means that larger net force creates larger acceleration, while larger mass makes the same force produce less acceleration.
-`.trim(),
-  },
-  {
-    title: "What are work and energy in physics?",
-    slug: "work-and-energy-basics",
-    category: "Physics",
-    categorySlug: "physics",
-    description: "Learn the relationship between work, force, displacement, and kinetic energy.",
-    problem: "Explain work and energy, then find the work done by a 10 N force moving an object 3 m in the direction of the force.",
-    metaDescription: "Work and energy basics in physics explained with W equals Fd and a simple worked example.",
-    content: `
-## Problem Statement
-
-Explain work and energy, then find the work done by a $10\\,\\text{N}$ force moving an object $3\\,\\text{m}$ in the direction of the force.
-
-## Step-by-Step Solution
-
-In physics, work is done when a force causes displacement. If the force and motion point in the same direction, work is:
-
-$$
-W = Fd
-$$
-
-where:
-
-- $W$ is work in joules
-- $F$ is force in newtons
-- $d$ is displacement in meters
-
-We are given:
-
-$$
-F = 10\\,\\text{N}
-$$
-
-and:
-
-$$
-d = 3\\,\\text{m}
-$$
-
-Substitute into the formula:
-
-$$
-W = (10)(3)
-$$
-
-So:
-
-$$
-W = 30\\,\\text{J}
-$$
-
-Energy is the ability to do work. When work is done on an object, energy is transferred. For example, positive work on an object can increase its kinetic energy.
-
-## Final Answer
-
-The work done is:
-
-$$
-\\boxed{30\\,\\text{J}}
-$$
-
-The main idea is that work measures energy transfer caused by a force acting through a distance.
-`.trim(),
-  },
-  {
-    title: "How does the unit circle work?",
-    slug: "unit-circle-explained",
-    category: "Trigonometry",
-    categorySlug: "trigonometry",
-    description: "Understand the unit circle and how cosine and sine come from x and y coordinates.",
-    problem: "Explain the unit circle and identify $\\sin(\\theta)$ and $\\cos(\\theta)$ on it.",
-    metaDescription: "Beginner-friendly unit circle explanation showing how sine and cosine relate to coordinates.",
-    content: `
-## Problem Statement
-
-Explain the unit circle and identify $\\sin(\\theta)$ and $\\cos(\\theta)$ on it.
-
-## Step-by-Step Solution
-
-The unit circle is a circle with radius $1$ centered at the origin of the coordinate plane.
-
-Its equation is:
-
-$$
-x^2 + y^2 = 1
-$$
-
-An angle $\\theta$ is usually measured from the positive $x$-axis. The point where the angle meets the circle has coordinates:
-
-$$
-(x,y)
-$$
-
-On the unit circle:
-
-$$
-x = \\cos(\\theta)
-$$
-
-and:
-
-$$
-y = \\sin(\\theta)
-$$
-
-So the point on the unit circle can be written as:
-
-$$
-(\\cos(\\theta), \\sin(\\theta))
-$$
-
-For example, at $\\theta = 0$:
-
-$$
-(\\cos(0), \\sin(0)) = (1,0)
-$$
-
-At $\\theta = \\frac{\\pi}{2}$:
-
-$$
-\\left(\\cos\\left(\\frac{\\pi}{2}\\right), \\sin\\left(\\frac{\\pi}{2}\\right)\\right) = (0,1)
-$$
-
-## Final Answer
-
-On the unit circle:
-
-$$
-\\boxed{\\cos(\\theta) = x \\text{ and } \\sin(\\theta) = y}
-$$
-
-This is why the unit circle is so useful: it connects angles, coordinates, and trigonometric functions in one picture.
-`.trim(),
-  },
-  {
-    title: "What is the difference between mean, median, and mode?",
-    slug: "mean-vs-median-vs-mode",
-    category: "Statistics",
-    categorySlug: "statistics",
-    description: "Compare mean, median, and mode with a simple data set.",
-    problem: "Find the mean, median, and mode of the data set $2, 3, 3, 7, 10$.",
-    metaDescription: "Mean vs median vs mode explained step by step using a simple statistics example.",
-    content: `
-## Problem Statement
-
-Find the mean, median, and mode of the data set:
-
-$$
-2, 3, 3, 7, 10
-$$
-
-## Step-by-Step Solution
-
-The mean, median, and mode are all measures of center, but they describe the data in different ways.
-
-The mean is the arithmetic average:
-
-$$
-\\text{mean} = \\frac{\\text{sum of values}}{\\text{number of values}}
-$$
-
-Add the values:
-
-$$
-2+3+3+7+10 = 25
-$$
-
-There are $5$ values, so:
-
-$$
-\\text{mean} = \\frac{25}{5}=5
-$$
-
-The median is the middle value when the data is ordered. The data is already ordered:
-
-$$
-2, 3, 3, 7, 10
-$$
-
-The middle value is:
-
-$$
-3
-$$
-
-The mode is the value that appears most often. The number $3$ appears twice, while the others appear once.
-
-So the mode is:
-
-$$
-3
-$$
-
-## Final Answer
-
-$$
-\\boxed{\\text{mean}=5, \\quad \\text{median}=3, \\quad \\text{mode}=3}
-$$
-
-The mean is affected by large or small extreme values, while the median is often more resistant to outliers.
-`.trim(),
-  },
-  {
-    title: "What is a matrix in linear algebra?",
-    slug: "what-is-a-matrix",
-    category: "Linear Algebra",
-    categorySlug: "linear-algebra",
-    description: "A beginner-friendly explanation of matrices, entries, rows, columns, and dimensions.",
-    problem: "Explain what a matrix is and identify the dimensions of $\\begin{bmatrix}1 & 2 & 3 \\\\ 4 & 5 & 6\\end{bmatrix}$.",
-    metaDescription: "What is a matrix? Learn rows, columns, entries, and matrix dimensions with a clear example.",
-    content: `
-## Problem Statement
-
-Explain what a matrix is and identify the dimensions of:
-
-$$
-\\begin{bmatrix}
-1 & 2 & 3 \\\\
-4 & 5 & 6
-\\end{bmatrix}
-$$
-
-## Step-by-Step Solution
-
-A matrix is a rectangular arrangement of numbers, symbols, or expressions. The individual items inside a matrix are called entries.
-
-This matrix has two horizontal rows:
-
-$$
-\\begin{bmatrix}
-1 & 2 & 3
-\\end{bmatrix}
-$$
-
-and:
-
-$$
-\\begin{bmatrix}
-4 & 5 & 6
-\\end{bmatrix}
-$$
-
-It also has three vertical columns:
-
-$$
-\\begin{bmatrix}
-1 \\\\
-4
-\\end{bmatrix},
-\\quad
-\\begin{bmatrix}
-2 \\\\
-5
-\\end{bmatrix},
-\\quad
-\\begin{bmatrix}
-3 \\\\
-6
-\\end{bmatrix}
-$$
-
-Matrix dimensions are written as:
-
-$$
-\\text{rows} \\times \\text{columns}
-$$
-
-This matrix has $2$ rows and $3$ columns.
-
-## Final Answer
-
-The matrix has dimensions:
-
-$$
-\\boxed{2 \\times 3}
-$$
-
-Matrices are useful because they organize data and represent systems of equations, transformations, and many kinds of linear relationships.
-`.trim(),
-  },
-  {
-    title: "How do you write a lab report?",
-    slug: "how-to-write-a-lab-report",
-    category: "Lab Reports",
-    categorySlug: "lab-reports",
-    description: "Learn the main sections of a strong STEM lab report and what each section should accomplish.",
-    problem: "Describe the standard structure of a lab report and explain what belongs in each section.",
-    metaDescription: "How to write a lab report with a clear structure for title, abstract, methods, results, discussion, and conclusion.",
-    content: `
-## Problem Statement
-
-Describe the standard structure of a lab report and explain what belongs in each section.
-
-## Step-by-Step Solution
-
-A lab report is a scientific explanation of what you tested, how you tested it, what happened, and what the results mean. A strong report is organized so another reader could understand and evaluate the experiment.
-
-## 1. Title
-
-The title should be specific. It should tell the reader what the experiment studied, not just say "Lab Report."
-
-## 2. Abstract
-
-The abstract is a short summary of the entire report. It usually includes the purpose, method, main result, and conclusion.
-
-## 3. Objective or Purpose
-
-This section explains the question the lab is trying to answer. A good objective is clear and testable.
-
-## 4. Materials and Methods
-
-List the materials used and describe the procedure. The goal is reproducibility: another student should be able to follow your method.
-
-## 5. Data and Results
-
-Present observations, measurements, tables, graphs, and calculations. Keep this section factual. Save interpretation for the discussion.
-
-## 6. Analysis and Discussion
-
-Explain what the results mean. Connect the data to the scientific concept, discuss patterns, and address sources of uncertainty.
-
-## 7. Conclusion
-
-State whether the results support the objective or hypothesis. Mention the key evidence and what could be improved in a future experiment.
-
-## Final Answer
-
-A strong lab report follows this structure:
-
-$$
-\\boxed{\\text{Title} \\to \\text{Abstract} \\to \\text{Purpose} \\to \\text{Methods} \\to \\text{Results} \\to \\text{Discussion} \\to \\text{Conclusion}}
-$$
-
-The most important habit is to separate results from interpretation: first show what happened, then explain what it means.
-`.trim(),
-  },
-  {
-    title: "How do you graph a function?",
-    slug: "how-to-graph-a-function",
-    category: "Graphing / Data Visualization",
-    categorySlug: "graphing-data-visualization",
-    description: "A practical method for graphing a function by making a table and plotting points.",
-    problem: "Graph the function $y = x^2 - 1$ by finding key points and describing the shape.",
-    metaDescription: "Learn how to graph a function step by step using y equals x squared minus 1 as an example.",
-    content: `
-## Problem Statement
-
-Graph the function:
-
-$$
-y = x^2 - 1
-$$
-
-by finding key points and describing the shape.
-
-## Step-by-Step Solution
-
-To graph a function, choose several input values, compute the corresponding output values, plot the points, and connect them according to the function's shape.
-
-For:
-
-$$
-y = x^2 - 1
-$$
-
-make a table of values:
-
-| $x$ | $y = x^2 - 1$ |
-| --- | --- |
-| $-2$ | $3$ |
-| $-1$ | $0$ |
-| $0$ | $-1$ |
-| $1$ | $0$ |
-| $2$ | $3$ |
-
-So the points are:
-
-$$
-(-2,3),\\;(-1,0),\\;(0,-1),\\;(1,0),\\;(2,3)
-$$
-
-Because the function contains $x^2$, its graph is a parabola. The coefficient of $x^2$ is positive, so the parabola opens upward.
-
-The lowest point is the vertex:
-
-$$
-(0,-1)
-$$
-
-The graph crosses the $x$-axis at:
-
-$$
-(-1,0) \\text{ and } (1,0)
-$$
-
-## Final Answer
-
-The graph of $y = x^2 - 1$ is an upward-opening parabola with vertex:
-
-$$
-\\boxed{(0,-1)}
-$$
-
-and $x$-intercepts:
-
-$$
-\\boxed{(-1,0) \\text{ and } (1,0)}
-$$
-`.trim(),
-  },
+const topicSeeds: StudyTopicSeed[] = [
+  { title: "How do you solve a quadratic equation?", slug: "solving-quadratic-equations", categorySlug: "algebra", keyIdea: "A quadratic equation can often be solved by factoring, completing the square, or using the quadratic formula.", formula: "ax^2 + bx + c = 0" },
+  { title: "What is the quadratic formula and how do you use it?", slug: "quadratic-formula", categorySlug: "college-algebra", keyIdea: "The quadratic formula solves any quadratic equation once you identify a, b, and c.", formula: "x = \\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}" },
+  { title: "How do you factor polynomials step by step?", slug: "factor-polynomials-step-by-step", categorySlug: "algebra", keyIdea: "Factoring rewrites a polynomial as a product of simpler expressions by finding common factors and patterns." },
+  { title: "How do you simplify rational expressions?", slug: "simplify-rational-expressions", categorySlug: "college-algebra", keyIdea: "Simplifying rational expressions means factoring the numerator and denominator, then canceling only common factors." },
+  { title: "How do you solve systems of equations?", slug: "solve-systems-of-equations", categorySlug: "algebra", keyIdea: "Systems of equations are solved by finding values that make all equations true at the same time." },
+  { title: "How do you find the slope of a line?", slug: "find-slope-of-a-line", categorySlug: "algebra", keyIdea: "Slope measures how much y changes for each unit change in x.", formula: "m = \\frac{y_2-y_1}{x_2-x_1}" },
+  { title: "How do you write an equation in slope-intercept form?", slug: "slope-intercept-form", categorySlug: "algebra", keyIdea: "Slope-intercept form shows the slope and y-intercept directly.", formula: "y = mx + b" },
+  { title: "How do you solve inequalities?", slug: "solve-inequalities", categorySlug: "algebra", keyIdea: "Inequalities are solved like equations, except multiplying or dividing by a negative number reverses the inequality sign." },
+  { title: "How do you graph linear equations?", slug: "graph-linear-equations", categorySlug: "graphing", keyIdea: "A linear equation graphs as a straight line, usually by plotting the y-intercept and using the slope.", formula: "y = mx + b" },
+  { title: "How do exponents and radicals work?", slug: "exponents-and-radicals", categorySlug: "precalculus", keyIdea: "Exponents describe repeated multiplication, while radicals undo powers.", formula: "\\sqrt[n]{x}=x^{1/n}" },
+  { title: "What is the unit circle and how do you memorize it?", slug: "unit-circle-explained", categorySlug: "trigonometry", keyIdea: "The unit circle connects angles to coordinates, where cosine is x and sine is y.", formula: "(x,y)=(\\cos\\theta,\\sin\\theta)" },
+  { title: "How do sine, cosine, and tangent work?", slug: "sine-cosine-tangent", categorySlug: "trigonometry", keyIdea: "Sine, cosine, and tangent compare side lengths in right triangles and coordinates on the unit circle.", formula: "\\tan\\theta=\\frac{\\sin\\theta}{\\cos\\theta}" },
+  { title: "How do you convert radians to degrees?", slug: "convert-radians-to-degrees", categorySlug: "trigonometry", keyIdea: "Radians and degrees are two ways to measure angles, connected by pi radians equaling 180 degrees.", formula: "\\text{degrees}=\\text{radians}\\cdot\\frac{180}{\\pi}" },
+  { title: "How do you solve trig equations?", slug: "solve-trig-equations", categorySlug: "trigonometry", keyIdea: "Solving trig equations means isolating the trig function, finding reference angles, and including all valid solutions." },
+  { title: "What are trig identities and how do you use them?", slug: "trig-identities", categorySlug: "trigonometry", keyIdea: "Trig identities are always-true relationships that help simplify expressions and solve equations.", formula: "\\sin^2\\theta+\\cos^2\\theta=1" },
+  { title: "How do you graph sine and cosine functions?", slug: "graph-sine-and-cosine", categorySlug: "data-visualization", keyIdea: "Sine and cosine graphs are periodic waves controlled by amplitude, period, phase shift, and vertical shift." },
+  { title: "What is inverse sine, cosine, and tangent?", slug: "inverse-sine-cosine-tangent", categorySlug: "trigonometry", keyIdea: "Inverse trig functions work backward from a ratio to an angle, with restricted ranges so each answer is unique." },
+  { title: "How do you use the law of sines and law of cosines?", slug: "law-of-sines-and-cosines", categorySlug: "geometry", keyIdea: "The laws of sines and cosines solve triangles that are not necessarily right triangles.", formula: "\\frac{a}{\\sin A}=\\frac{b}{\\sin B}=\\frac{c}{\\sin C}" },
+  { title: "How do polar coordinates work?", slug: "polar-coordinates", categorySlug: "precalculus", keyIdea: "Polar coordinates locate a point by distance from the origin and angle from the positive x-axis.", formula: "x=r\\cos\\theta,\\quad y=r\\sin\\theta" },
+  { title: "How do parametric equations work?", slug: "parametric-equations", categorySlug: "precalculus", keyIdea: "Parametric equations describe x and y separately using a third variable, often time." },
+  { title: "How do you find the derivative of a function?", slug: "find-derivative-of-a-function", categorySlug: "calculus", keyIdea: "The derivative measures instantaneous rate of change and can be found with rules or the limit definition.", formula: "f'(x)=\\lim_{h\\to0}\\frac{f(x+h)-f(x)}{h}" },
+  { title: "What does the derivative mean in simple terms?", slug: "what-does-derivative-mean", categorySlug: "calculus", keyIdea: "A derivative is the slope of a curve at a point and tells how fast a quantity is changing." },
+  { title: "How do you use the power rule?", slug: "power-rule", categorySlug: "calculus", keyIdea: "The power rule differentiates powers of x by bringing down the exponent and subtracting one.", formula: "\\frac{d}{dx}x^n=nx^{n-1}" },
+  { title: "How do you use the product rule?", slug: "product-rule", categorySlug: "calculus", keyIdea: "The product rule differentiates two multiplied functions by differentiating each part once.", formula: "(fg)'=f'g+fg'" },
+  { title: "How do you use the quotient rule?", slug: "quotient-rule", categorySlug: "calculus", keyIdea: "The quotient rule differentiates one function divided by another.", formula: "\\left(\\frac{f}{g}\\right)'=\\frac{f'g-fg'}{g^2}" },
+  { title: "How do you use the chain rule?", slug: "chain-rule", categorySlug: "calculus", keyIdea: "The chain rule differentiates composite functions by multiplying the outside derivative by the inside derivative.", formula: "\\frac{d}{dx}f(g(x))=f'(g(x))g'(x)" },
+  { title: "How do you find critical points and local extrema?", slug: "critical-points-local-extrema", categorySlug: "calculus", keyIdea: "Critical points occur where the derivative is zero or undefined, and they are candidates for local maxima and minima." },
+  { title: "What is an integral and what does it mean?", slug: "what-is-an-integral", categorySlug: "calculus", keyIdea: "An integral accumulates quantities and often represents area under a curve.", formula: "\\int_a^b f(x)\\,dx" },
+  { title: "How do you find an antiderivative?", slug: "find-antiderivative", categorySlug: "calculus", keyIdea: "An antiderivative reverses differentiation and includes a constant of integration.", formula: "\\int f'(x)\\,dx=f(x)+C" },
+  { title: "How do you use u-substitution?", slug: "u-substitution", categorySlug: "calculus", keyIdea: "U-substitution simplifies an integral by replacing an inside expression with a new variable." },
+  { title: "How do you use integration by parts?", slug: "integration-by-parts", categorySlug: "calculus-2", keyIdea: "Integration by parts reverses the product rule and is useful for products of functions.", formula: "\\int u\\,dv=uv-\\int v\\,du" },
+  { title: "How do you solve partial fraction integrals?", slug: "partial-fraction-integrals", categorySlug: "calculus-2", keyIdea: "Partial fractions break a rational expression into simpler fractions that are easier to integrate." },
+  { title: "How do improper integrals work?", slug: "improper-integrals", categorySlug: "calculus-2", keyIdea: "Improper integrals use limits when an interval is infinite or the integrand becomes undefined." },
+  { title: "How do you find the area between two curves?", slug: "area-between-two-curves", categorySlug: "calculus-2", keyIdea: "Area between curves comes from integrating the top function minus the bottom function.", formula: "A=\\int_a^b(\\text{top}-\\text{bottom})\\,dx" },
+  { title: "How do you find volume using the disk and washer method?", slug: "disk-and-washer-method", categorySlug: "calculus-2", keyIdea: "The disk and washer methods find volumes by slicing a solid of revolution into circular cross sections.", formula: "V=\\pi\\int_a^b(R^2-r^2)\\,dx" },
+  { title: "What is a Taylor series?", slug: "taylor-series", categorySlug: "calculus-2", keyIdea: "A Taylor series represents a function as an infinite polynomial built from derivatives at one point." },
+  { title: "How do sequences and series work?", slug: "sequences-and-series", categorySlug: "calculus-2", keyIdea: "A sequence is an ordered list of terms, while a series is the sum of those terms." },
+  { title: "How do you test whether a series converges or diverges?", slug: "series-convergence-tests", categorySlug: "calculus-2", keyIdea: "Convergence tests decide whether an infinite series approaches a finite sum." },
+  { title: "What is a partial derivative?", slug: "partial-derivative", categorySlug: "calculus-3", keyIdea: "A partial derivative measures how a multivariable function changes with respect to one variable while the others stay fixed." },
+  { title: "How do multiple integrals work?", slug: "multiple-integrals", categorySlug: "calculus-3", keyIdea: "Multiple integrals accumulate quantities over two-dimensional or three-dimensional regions." },
+  { title: "What is a differential equation?", slug: "what-is-a-differential-equation", categorySlug: "differential-equations", keyIdea: "A differential equation relates a function to one or more of its derivatives." },
+  { title: "How do you solve a first-order differential equation?", slug: "first-order-differential-equation", categorySlug: "differential-equations", keyIdea: "First-order differential equations often use separation, integrating factors, or direct integration." },
+  { title: "What is separation of variables?", slug: "separation-of-variables", categorySlug: "differential-equations", keyIdea: "Separation of variables moves each variable to its own side so both sides can be integrated." },
+  { title: "What is a matrix?", slug: "what-is-a-matrix", categorySlug: "linear-algebra", keyIdea: "A matrix is a rectangular array of entries organized into rows and columns." },
+  { title: "How do matrix operations work?", slug: "matrix-operations", categorySlug: "linear-algebra", keyIdea: "Matrix operations include addition, scalar multiplication, matrix multiplication, and transposition." },
+  { title: "How do you find the determinant of a matrix?", slug: "determinant-of-a-matrix", categorySlug: "linear-algebra", keyIdea: "A determinant is a number associated with a square matrix that reveals invertibility and scaling behavior." },
+  { title: "What is an eigenvalue and eigenvector?", slug: "eigenvalue-and-eigenvector", categorySlug: "linear-algebra", keyIdea: "An eigenvector keeps its direction under a matrix transformation, while the eigenvalue tells how it scales.", formula: "A\\vec v=\\lambda\\vec v" },
+  { title: "How does Gaussian elimination work?", slug: "gaussian-elimination", categorySlug: "linear-algebra", keyIdea: "Gaussian elimination solves systems by using row operations to create a simpler equivalent system." },
+  { title: "What is mathematical induction?", slug: "mathematical-induction", categorySlug: "discrete-math", keyIdea: "Mathematical induction proves statements for all natural numbers by proving a base case and an inductive step." },
+  { title: "What is a recurrence relation?", slug: "recurrence-relation", categorySlug: "discrete-math", keyIdea: "A recurrence relation defines each term of a sequence using earlier terms." },
+  { title: "What is the difference between mean, median, and mode?", slug: "mean-vs-median-vs-mode", categorySlug: "statistics", keyIdea: "Mean, median, and mode are different ways to describe the center or typical value of a data set." },
+  { title: "What is standard deviation?", slug: "standard-deviation", categorySlug: "statistics", keyIdea: "Standard deviation measures how spread out data values are from the mean." },
+  { title: "How do you calculate probability?", slug: "calculate-probability", categorySlug: "probability", keyIdea: "Probability compares favorable outcomes to all possible outcomes when outcomes are equally likely.", formula: "P(A)=\\frac{\\text{favorable outcomes}}{\\text{total outcomes}}" },
+  { title: "What is conditional probability?", slug: "conditional-probability", categorySlug: "probability", keyIdea: "Conditional probability measures the chance of one event given that another event has already happened.", formula: "P(A\\mid B)=\\frac{P(A\\cap B)}{P(B)}" },
+  { title: "What is Bayes' theorem in simple terms?", slug: "bayes-theorem", categorySlug: "probability", keyIdea: "Bayes' theorem updates a probability when new evidence is known.", formula: "P(A\\mid B)=\\frac{P(B\\mid A)P(A)}{P(B)}" },
+  { title: "What is a normal distribution?", slug: "normal-distribution", categorySlug: "statistics", keyIdea: "A normal distribution is a symmetric bell-shaped distribution centered at its mean." },
+  { title: "What is a z-score?", slug: "z-score", categorySlug: "statistics", keyIdea: "A z-score tells how many standard deviations a value is from the mean.", formula: "z=\\frac{x-\\mu}{\\sigma}" },
+  { title: "How do hypothesis tests work?", slug: "hypothesis-tests", categorySlug: "scientific-writing", keyIdea: "A hypothesis test uses sample data to evaluate whether evidence is strong enough to reject a null hypothesis." },
+  { title: "What is a confidence interval?", slug: "confidence-interval", categorySlug: "lab-reports", keyIdea: "A confidence interval gives a plausible range of values for an unknown population parameter." },
+  { title: "What is the difference between permutation and combination?", slug: "permutation-vs-combination", categorySlug: "probability", keyIdea: "Permutations count arrangements where order matters, while combinations count selections where order does not matter." },
+  { title: "What is Newton's second law?", slug: "newtons-second-law", categorySlug: "mechanics", keyIdea: "Newton's second law connects net force, mass, and acceleration.", formula: "F_{\\text{net}}=ma" },
+  { title: "How do free body diagrams work?", slug: "free-body-diagrams", categorySlug: "mechanics", keyIdea: "A free body diagram shows all forces acting on one object so Newton's laws can be applied." },
+  { title: "What is the difference between speed and velocity?", slug: "speed-vs-velocity", categorySlug: "physics", keyIdea: "Speed is how fast something moves, while velocity includes both speed and direction." },
+  { title: "How do acceleration equations work?", slug: "acceleration-equations", categorySlug: "mechanics", keyIdea: "Acceleration equations connect displacement, velocity, time, and constant acceleration.", formula: "v=v_0+at" },
+  { title: "What is work in physics?", slug: "work-in-physics", categorySlug: "mechanics", keyIdea: "Work is energy transferred when a force moves an object through a distance.", formula: "W=Fd\\cos\\theta" },
+  { title: "What is kinetic and potential energy?", slug: "kinetic-and-potential-energy", categorySlug: "mechanics", keyIdea: "Kinetic energy is energy of motion, while potential energy is stored energy due to position.", formula: "K=\\frac{1}{2}mv^2" },
+  { title: "What is momentum?", slug: "momentum", categorySlug: "mechanics", keyIdea: "Momentum measures how much motion an object has and depends on mass and velocity.", formula: "p=mv" },
+  { title: "How do collisions work in physics?", slug: "collisions-in-physics", categorySlug: "mechanics", keyIdea: "Collisions are analyzed with conservation of momentum, and sometimes conservation of kinetic energy." },
+  { title: "What is torque?", slug: "torque", categorySlug: "engineering", keyIdea: "Torque measures how strongly a force tends to rotate an object.", formula: "\\tau=rF\\sin\\theta" },
+  { title: "What is rotational motion?", slug: "rotational-motion", categorySlug: "mechanics", keyIdea: "Rotational motion describes objects turning around an axis using angular position, velocity, and acceleration." },
+  { title: "What is simple harmonic motion?", slug: "simple-harmonic-motion", categorySlug: "waves-and-optics", keyIdea: "Simple harmonic motion is repeating motion caused by a restoring force proportional to displacement." },
+  { title: "How do waves work in physics?", slug: "how-waves-work", categorySlug: "waves-and-optics", keyIdea: "Waves transfer energy through oscillations without permanently transporting matter." },
+  { title: "What is frequency, wavelength, and wave speed?", slug: "frequency-wavelength-wave-speed", categorySlug: "waves-and-optics", keyIdea: "Wave speed equals frequency times wavelength.", formula: "v=f\\lambda" },
+  { title: "What is the first law of thermodynamics?", slug: "first-law-of-thermodynamics", categorySlug: "thermodynamics", keyIdea: "The first law of thermodynamics says energy is conserved in thermal systems.", formula: "\\Delta U=Q-W" },
+  { title: "What is heat transfer by conduction, convection, and radiation?", slug: "conduction-convection-radiation", categorySlug: "materials-science", keyIdea: "Heat can move by direct contact, fluid motion, or electromagnetic radiation." },
+  { title: "What is electric field?", slug: "electric-field", categorySlug: "electricity-and-magnetism", keyIdea: "An electric field describes the force per unit charge at a point in space.", formula: "E=\\frac{F}{q}" },
+  { title: "What is electric potential and voltage?", slug: "electric-potential-and-voltage", categorySlug: "electricity-and-magnetism", keyIdea: "Voltage measures electric potential energy per unit charge.", formula: "V=\\frac{U}{q}" },
+  { title: "What is Ohm's law?", slug: "ohms-law", categorySlug: "circuits", keyIdea: "Ohm's law relates voltage, current, and resistance in many circuit elements.", formula: "V=IR" },
+  { title: "How do series and parallel circuits work?", slug: "series-and-parallel-circuits", categorySlug: "circuits", keyIdea: "Series circuits share current through one path, while parallel circuits share voltage across branches." },
+  { title: "What is capacitance?", slug: "capacitance", categorySlug: "electricity-and-magnetism", keyIdea: "Capacitance measures how much charge a capacitor stores per volt.", formula: "C=\\frac{Q}{V}" },
+  { title: "What is a magnetic field?", slug: "magnetic-field", categorySlug: "electricity-and-magnetism", keyIdea: "A magnetic field describes magnetic forces on moving charges, currents, and magnetic materials." },
+  { title: "What is electromagnetic induction?", slug: "electromagnetic-induction", categorySlug: "electricity-and-magnetism", keyIdea: "Electromagnetic induction creates voltage when magnetic flux changes." },
+  { title: "How do Kirchhoff's laws work?", slug: "kirchhoffs-laws", categorySlug: "circuits", keyIdea: "Kirchhoff's laws use conservation of charge and energy to analyze circuits." },
+  { title: "How do you balance a chemical equation?", slug: "balance-chemical-equation", categorySlug: "general-chemistry", keyIdea: "Balancing a chemical equation makes the number of atoms of each element match on both sides." },
+  { title: "What is molarity and how do you calculate it?", slug: "molarity", categorySlug: "general-chemistry", keyIdea: "Molarity measures moles of solute per liter of solution.", formula: "M=\\frac{\\text{moles solute}}{\\text{liters solution}}" },
+  { title: "What is the ideal gas law?", slug: "ideal-gas-law", categorySlug: "general-chemistry", keyIdea: "The ideal gas law relates pressure, volume, moles, temperature, and the gas constant.", formula: "PV=nRT" },
+  { title: "What is pH and how do you calculate it?", slug: "ph-and-how-to-calculate-it", categorySlug: "chemistry", keyIdea: "pH measures acidity using the concentration of hydrogen ions.", formula: "\\text{pH}=-\\log[H^+]" },
+  { title: "What are oxidation and reduction reactions?", slug: "oxidation-and-reduction", categorySlug: "chemistry", keyIdea: "Oxidation is loss of electrons, while reduction is gain of electrons." },
+  { title: "What is chemical equilibrium?", slug: "chemical-equilibrium", categorySlug: "chemistry", keyIdea: "Chemical equilibrium occurs when forward and reverse reaction rates are equal." },
+  { title: "What are functional groups in organic chemistry?", slug: "functional-groups", categorySlug: "organic-chemistry", keyIdea: "Functional groups are atom groups that strongly influence how organic molecules react." },
+  { title: "What is DNA replication?", slug: "dna-replication", categorySlug: "biology", keyIdea: "DNA replication copies genetic information before cell division using complementary base pairing." },
+  { title: "What is the difference between mitosis and meiosis?", slug: "mitosis-vs-meiosis", categorySlug: "cell-biology", keyIdea: "Mitosis produces identical body cells, while meiosis produces genetically varied gametes." },
+  { title: "How does photosynthesis work?", slug: "photosynthesis", categorySlug: "biology", keyIdea: "Photosynthesis converts light energy, carbon dioxide, and water into glucose and oxygen." },
+  { title: "How does cellular respiration work?", slug: "cellular-respiration", categorySlug: "cell-biology", keyIdea: "Cellular respiration breaks down glucose to produce ATP energy for cells." },
+  { title: "What is a variable in programming?", slug: "variable-in-programming", categorySlug: "computer-science", keyIdea: "A variable is a named storage location for a value that a program can use and update." },
+  { title: "What is the difference between a list, array, and stack?", slug: "list-array-stack", categorySlug: "data-structures", keyIdea: "Lists, arrays, and stacks are data structures with different storage rules and access patterns." },
+  { title: "What is a linked list?", slug: "linked-list", categorySlug: "data-structures", keyIdea: "A linked list stores data in nodes that point to the next node instead of using one continuous block of memory." },
+  { title: "What is Big O notation?", slug: "big-o-notation", categorySlug: "algorithms", keyIdea: "Big O notation describes how an algorithm's time or space grows as input size increases." },
+  { title: "What is the difference between recursion and iteration?", slug: "recursion-vs-iteration", categorySlug: "programming-basics", keyIdea: "Recursion solves a problem by calling itself, while iteration repeats steps with loops." },
+  { title: "What is a sorting algorithm?", slug: "sorting-algorithm", categorySlug: "algorithms", keyIdea: "A sorting algorithm rearranges data into a defined order, often increasing or decreasing." },
+  { title: "How do you complete the square?", slug: "complete-the-square", categorySlug: "algebra", keyIdea: "Completing the square rewrites a quadratic as a perfect square plus or minus a constant.", formula: "x^2+bx=\\left(x+\\frac{b}{2}\\right)^2-\\left(\\frac{b}{2}\\right)^2" },
+  { title: "How do you solve absolute value equations?", slug: "solve-absolute-value-equations", categorySlug: "algebra", keyIdea: "Absolute value equations split into positive and negative cases because distance from zero can be reached in two directions." },
+  { title: "How do you solve exponential equations?", slug: "solve-exponential-equations", categorySlug: "precalculus", keyIdea: "Exponential equations are solved by matching bases or using logarithms to bring exponents down." },
+  { title: "How do logarithms work?", slug: "how-logarithms-work", categorySlug: "precalculus", keyIdea: "A logarithm answers the question of what exponent is needed to produce a given number.", formula: "\\log_b(x)=y \\iff b^y=x" },
+  { title: "How do you solve logarithmic equations?", slug: "solve-logarithmic-equations", categorySlug: "precalculus", keyIdea: "Logarithmic equations are solved by combining logs, rewriting in exponential form, and checking domain restrictions." },
+  { title: "What are asymptotes and how do you find them?", slug: "asymptotes", categorySlug: "college-algebra", keyIdea: "Asymptotes are lines a graph approaches, often found from zeros of denominators or end behavior." },
+  { title: "How do you graph rational functions?", slug: "graph-rational-functions", categorySlug: "graphing", keyIdea: "Graphing rational functions involves finding intercepts, asymptotes, holes, and end behavior." },
+  { title: "How do you find the inverse of a function?", slug: "inverse-of-a-function", categorySlug: "college-algebra", keyIdea: "An inverse function reverses input and output, usually found by swapping x and y and solving for y." },
+  { title: "What is function composition?", slug: "function-composition", categorySlug: "precalculus", keyIdea: "Function composition means using the output of one function as the input of another.", formula: "(f\\circ g)(x)=f(g(x))" },
+  { title: "How do transformations of functions work?", slug: "transformations-of-functions", categorySlug: "precalculus", keyIdea: "Function transformations shift, stretch, compress, or reflect a parent graph." },
+  { title: "How do you prove trig identities step by step?", slug: "prove-trig-identities-step-by-step", categorySlug: "trigonometry", keyIdea: "Proving trig identities means transforming one side using known identities until it matches the other side." },
+  { title: "What are double angle formulas?", slug: "double-angle-formulas", categorySlug: "trigonometry", keyIdea: "Double angle formulas rewrite trig functions of twice an angle in terms of trig functions of the original angle.", formula: "\\sin(2\\theta)=2\\sin\\theta\\cos\\theta" },
+  { title: "What are half-angle identities?", slug: "half-angle-identities", categorySlug: "trigonometry", keyIdea: "Half-angle identities express trig functions of half an angle using functions of the original angle.", formula: "\\sin^2\\left(\\frac{\\theta}{2}\\right)=\\frac{1-\\cos\\theta}{2}" },
+  { title: "How do you solve triangles using trig?", slug: "solve-triangles-using-trig", categorySlug: "geometry", keyIdea: "Trigonometry solves triangles by connecting side lengths and angle measures through ratios and triangle laws." },
+  { title: "What is amplitude and period in trig functions?", slug: "amplitude-and-period", categorySlug: "trigonometry", keyIdea: "Amplitude controls wave height, while period controls how long one full cycle takes." },
+  { title: "How do phase shifts work in trig graphs?", slug: "phase-shifts-in-trig-graphs", categorySlug: "trigonometry", keyIdea: "A phase shift moves a trig graph left or right by changing the input inside the trig function." },
+  { title: "How do you convert between polar and Cartesian coordinates?", slug: "polar-cartesian-conversion", categorySlug: "precalculus", keyIdea: "Polar and Cartesian coordinates convert using radius, angle, x-coordinate, and y-coordinate.", formula: "x=r\\cos\\theta,\\quad y=r\\sin\\theta" },
+  { title: "What is arc length in radians?", slug: "arc-length-in-radians", categorySlug: "trigonometry", keyIdea: "Arc length in radians equals radius times central angle.", formula: "s=r\\theta" },
+  { title: "What is angular velocity?", slug: "angular-velocity", categorySlug: "physics", keyIdea: "Angular velocity measures how quickly an object rotates through an angle.", formula: "\\omega=\\frac{\\Delta\\theta}{\\Delta t}" },
+  { title: "How do you model real-world motion with trig?", slug: "model-motion-with-trig", categorySlug: "data-visualization", keyIdea: "Trig functions model repeating motion such as waves, circular motion, tides, and oscillations." },
+  { title: "What is the limit of a function?", slug: "limit-of-a-function", categorySlug: "calculus", keyIdea: "A limit describes the value a function approaches as the input gets close to a point." },
+  { title: "How do limits work intuitively?", slug: "limits-intuitively", categorySlug: "calculus", keyIdea: "Intuitively, a limit follows where function values are heading, even if the function is not defined at that point." },
+  { title: "How do you evaluate limits algebraically?", slug: "evaluate-limits-algebraically", categorySlug: "calculus", keyIdea: "Algebraic limit techniques include substitution, factoring, rationalizing, and simplifying expressions." },
+  { title: "What is L'Hopital's Rule and when do you use it?", slug: "lhopitals-rule", categorySlug: "calculus", keyIdea: "L'Hopital's Rule evaluates certain indeterminate limits by differentiating numerator and denominator.", formula: "\\lim\\frac{f(x)}{g(x)}=\\lim\\frac{f'(x)}{g'(x)}" },
+  { title: "What is implicit differentiation?", slug: "implicit-differentiation", categorySlug: "calculus", keyIdea: "Implicit differentiation finds derivatives when x and y are mixed together in one equation." },
+  { title: "How do you find related rates?", slug: "related-rates", categorySlug: "calculus", keyIdea: "Related rates problems connect changing quantities with an equation and differentiate with respect to time." },
+  { title: "What is concavity and inflection points?", slug: "concavity-and-inflection-points", categorySlug: "calculus", keyIdea: "Concavity describes whether a graph bends upward or downward, and inflection points mark changes in concavity." },
+  { title: "What is optimization in calculus?", slug: "optimization-in-calculus", categorySlug: "calculus", keyIdea: "Optimization uses derivatives to find maximum or minimum values under given constraints." },
+  { title: "How do you solve max/min word problems?", slug: "max-min-word-problems", categorySlug: "calculus", keyIdea: "Max/min word problems become optimization problems after defining variables, constraints, and an objective function." },
+  { title: "What is the fundamental theorem of calculus?", slug: "fundamental-theorem-of-calculus", categorySlug: "calculus", keyIdea: "The fundamental theorem of calculus connects derivatives and integrals as inverse processes." },
+  { title: "How do you use trigonometric substitution?", slug: "trigonometric-substitution", categorySlug: "calculus-2", keyIdea: "Trigonometric substitution simplifies integrals containing expressions like square roots of quadratic forms." },
+  { title: "How do you integrate trigonometric functions?", slug: "integrate-trigonometric-functions", categorySlug: "calculus-2", keyIdea: "Integrating trigonometric functions uses identities, substitution, and known antiderivatives." },
+  { title: "How do you integrate exponential functions?", slug: "integrate-exponential-functions", categorySlug: "calculus-2", keyIdea: "Exponential integrals depend on whether the base is e or another constant.", formula: "\\int e^x\\,dx=e^x+C" },
+  { title: "What is convergence vs divergence?", slug: "convergence-vs-divergence", categorySlug: "calculus-2", keyIdea: "Convergence means a sequence or series approaches a finite value, while divergence means it does not." },
+  { title: "What is the ratio test?", slug: "ratio-test", categorySlug: "calculus-2", keyIdea: "The ratio test checks convergence by looking at the limit of consecutive term ratios." },
+  { title: "What is the comparison test?", slug: "comparison-test", categorySlug: "calculus-2", keyIdea: "The comparison test determines convergence by comparing a series to another series whose behavior is known." },
+  { title: "What is a geometric series?", slug: "geometric-series", categorySlug: "calculus-2", keyIdea: "A geometric series adds terms that are multiplied by a constant ratio each step.", formula: "\\sum_{n=0}^{\\infty}ar^n=\\frac{a}{1-r}" },
+  { title: "What is a power series?", slug: "power-series", categorySlug: "calculus-2", keyIdea: "A power series is an infinite polynomial centered around a point." },
+  { title: "What is radius of convergence?", slug: "radius-of-convergence", categorySlug: "calculus-2", keyIdea: "The radius of convergence tells how far from the center a power series converges." },
+  { title: "What is a Fourier series?", slug: "fourier-series", categorySlug: "calculus-2", keyIdea: "A Fourier series represents a periodic function as a sum of sine and cosine waves." },
+  { title: "What is a vector?", slug: "what-is-a-vector", categorySlug: "linear-algebra", keyIdea: "A vector is a quantity with magnitude and direction, often represented by components." },
+  { title: "What is vector magnitude and direction?", slug: "vector-magnitude-and-direction", categorySlug: "linear-algebra", keyIdea: "Vector magnitude measures length, while direction describes orientation in space.", formula: "\\|\\vec v\\|=\\sqrt{v_1^2+v_2^2+\\cdots+v_n^2}" },
+  { title: "What is a dot product?", slug: "dot-product", categorySlug: "linear-algebra", keyIdea: "The dot product combines two vectors into a scalar and measures directional alignment.", formula: "\\vec a\\cdot\\vec b=\\|a\\|\\|b\\|\\cos\\theta" },
+  { title: "What is a cross product?", slug: "cross-product", categorySlug: "calculus-3", keyIdea: "The cross product creates a vector perpendicular to two three-dimensional vectors." },
+  { title: "What is a system of linear equations?", slug: "system-of-linear-equations", categorySlug: "linear-algebra", keyIdea: "A system of linear equations is a collection of linear equations solved together." },
+  { title: "What is matrix inversion?", slug: "matrix-inversion", categorySlug: "linear-algebra", keyIdea: "Matrix inversion finds a matrix that reverses the effect of another square matrix.", formula: "AA^{-1}=I" },
+  { title: "What is diagonalization?", slug: "diagonalization", categorySlug: "linear-algebra", keyIdea: "Diagonalization rewrites a matrix using eigenvectors so powers and transformations become easier to analyze." },
+  { title: "What is a linear transformation?", slug: "linear-transformation", categorySlug: "linear-algebra", keyIdea: "A linear transformation preserves vector addition and scalar multiplication." },
+  { title: "What is a homogeneous differential equation?", slug: "homogeneous-differential-equation", categorySlug: "differential-equations", keyIdea: "A homogeneous differential equation has a structure that lets zero input or proportional substitution simplify the equation." },
+  { title: "What is an integrating factor?", slug: "integrating-factor", categorySlug: "differential-equations", keyIdea: "An integrating factor turns certain first-order linear differential equations into derivatives of products." },
+  { title: "What is variance and how is it different from standard deviation?", slug: "variance-vs-standard-deviation", categorySlug: "statistics", keyIdea: "Variance measures average squared spread, while standard deviation is its square root and uses the original units." },
+  { title: "What is expected value?", slug: "expected-value", categorySlug: "probability", keyIdea: "Expected value is the long-run average outcome of a random process.", formula: "E(X)=\\sum xP(x)" },
+  { title: "What is a random variable?", slug: "random-variable", categorySlug: "probability", keyIdea: "A random variable assigns numerical values to outcomes of a random experiment." },
+  { title: "What is a probability distribution?", slug: "probability-distribution", categorySlug: "probability", keyIdea: "A probability distribution describes how probability is assigned across possible outcomes." },
+  { title: "What is binomial distribution?", slug: "binomial-distribution", categorySlug: "probability", keyIdea: "A binomial distribution models the number of successes in a fixed number of independent yes/no trials." },
+  { title: "What is Poisson distribution?", slug: "poisson-distribution", categorySlug: "probability", keyIdea: "A Poisson distribution models counts of events occurring in a fixed interval when events happen at an average rate." },
+  { title: "What is sampling bias?", slug: "sampling-bias", categorySlug: "statistics", keyIdea: "Sampling bias happens when a sample does not fairly represent the population being studied." },
+  { title: "What is correlation vs causation?", slug: "correlation-vs-causation", categorySlug: "statistics", keyIdea: "Correlation means two variables move together, while causation means one variable directly affects another." },
+  { title: "What is regression analysis?", slug: "regression-analysis", categorySlug: "statistics", keyIdea: "Regression analysis models relationships between variables and is often used for prediction." },
+  { title: "What is statistical significance?", slug: "statistical-significance", categorySlug: "statistics", keyIdea: "Statistical significance means observed data would be unlikely under the null hypothesis by a chosen threshold." },
+  { title: "How do you solve projectile motion problems?", slug: "projectile-motion-problems", categorySlug: "mechanics", keyIdea: "Projectile motion problems separate horizontal and vertical motion, then connect them with time." },
+  { title: "What is relative velocity?", slug: "relative-velocity", categorySlug: "physics", keyIdea: "Relative velocity describes how fast one object appears to move from another object's frame of reference." },
+  { title: "What is friction and how does it work?", slug: "friction", categorySlug: "mechanics", keyIdea: "Friction is a contact force that opposes relative motion or attempted motion between surfaces.", formula: "f_k=\\mu_kN" },
+  { title: "What is centripetal force?", slug: "centripetal-force", categorySlug: "mechanics", keyIdea: "Centripetal force is the net inward force required to keep an object moving in a circle.", formula: "F_c=\\frac{mv^2}{r}" },
+  { title: "What is circular motion?", slug: "circular-motion", categorySlug: "mechanics", keyIdea: "Circular motion describes movement along a circular path, often involving centripetal acceleration." },
+  { title: "What is gravitational force?", slug: "gravitational-force", categorySlug: "physics", keyIdea: "Gravitational force is the attractive force between masses.", formula: "F=G\\frac{m_1m_2}{r^2}" },
+  { title: "What is escape velocity?", slug: "escape-velocity", categorySlug: "physics", keyIdea: "Escape velocity is the minimum speed needed to leave a body's gravitational influence without further propulsion." },
+  { title: "What is power in physics?", slug: "power-in-physics", categorySlug: "physics", keyIdea: "Power measures the rate at which work is done or energy is transferred.", formula: "P=\\frac{W}{t}" },
+  { title: "What is conservation of energy?", slug: "conservation-of-energy", categorySlug: "mechanics", keyIdea: "Conservation of energy says total energy stays constant in an isolated system, though it can change forms." },
+  { title: "What is impulse?", slug: "impulse", categorySlug: "mechanics", keyIdea: "Impulse is force applied over time and equals the change in momentum.", formula: "J=F\\Delta t=\\Delta p" },
+  { title: "What is Coulomb's law?", slug: "coulombs-law", categorySlug: "electricity-and-magnetism", keyIdea: "Coulomb's law gives the electric force between two point charges.", formula: "F=k\\frac{|q_1q_2|}{r^2}" },
+  { title: "How do electric field lines work?", slug: "electric-field-lines", categorySlug: "electricity-and-magnetism", keyIdea: "Electric field lines visualize field direction and strength around charges." },
+  { title: "What is electric potential energy?", slug: "electric-potential-energy", categorySlug: "electricity-and-magnetism", keyIdea: "Electric potential energy is energy stored because of the positions of charges in an electric field." },
+  { title: "What is resistance?", slug: "resistance", categorySlug: "circuits", keyIdea: "Resistance measures how strongly a material or component opposes electric current.", formula: "R=\\frac{V}{I}" },
+  { title: "What is current in circuits?", slug: "current-in-circuits", categorySlug: "circuits", keyIdea: "Current is the rate at which electric charge flows through a circuit.", formula: "I=\\frac{\\Delta Q}{\\Delta t}" },
+  { title: "What is power in circuits?", slug: "power-in-circuits", categorySlug: "circuits", keyIdea: "Electrical power is the rate at which a circuit transfers electrical energy.", formula: "P=IV" },
+  { title: "What is RC circuit behavior?", slug: "rc-circuit-behavior", categorySlug: "circuits", keyIdea: "RC circuits charge and discharge capacitors over time according to an exponential pattern." },
+  { title: "What is magnetic flux?", slug: "magnetic-flux", categorySlug: "electricity-and-magnetism", keyIdea: "Magnetic flux measures how much magnetic field passes through a surface.", formula: "\\Phi_B=BA\\cos\\theta" },
+  { title: "What is Faraday's law?", slug: "faradays-law", categorySlug: "electricity-and-magnetism", keyIdea: "Faraday's law says changing magnetic flux induces an electromotive force.", formula: "\\mathcal{E}=-\\frac{d\\Phi_B}{dt}" },
+  { title: "What is Lenz's law?", slug: "lenzs-law", categorySlug: "electricity-and-magnetism", keyIdea: "Lenz's law says induced current opposes the change in magnetic flux that created it." },
+  { title: "What is stoichiometry?", slug: "stoichiometry", categorySlug: "general-chemistry", keyIdea: "Stoichiometry uses balanced chemical equations to relate amounts of reactants and products." },
+  { title: "What is limiting reagent?", slug: "limiting-reagent", categorySlug: "general-chemistry", keyIdea: "The limiting reagent is the reactant that runs out first and limits how much product can form." },
+  { title: "What is gas pressure?", slug: "gas-pressure", categorySlug: "general-chemistry", keyIdea: "Gas pressure comes from gas particles colliding with container walls." },
+  { title: "What is enthalpy?", slug: "enthalpy", categorySlug: "chemistry", keyIdea: "Enthalpy tracks heat flow at constant pressure in chemical and physical processes." },
+  { title: "What is entropy?", slug: "entropy", categorySlug: "chemistry", keyIdea: "Entropy measures energy dispersal or the number of possible microscopic arrangements in a system." },
+  { title: "What is Gibbs free energy?", slug: "gibbs-free-energy", categorySlug: "chemistry", keyIdea: "Gibbs free energy predicts whether a process is thermodynamically favorable at constant temperature and pressure.", formula: "\\Delta G=\\Delta H-T\\Delta S" },
+  { title: "What is a catalyst?", slug: "catalyst", categorySlug: "chemistry", keyIdea: "A catalyst speeds up a reaction by lowering activation energy without being consumed." },
+  { title: "What are enzymes?", slug: "enzymes", categorySlug: "biology", keyIdea: "Enzymes are biological catalysts that speed up reactions in living organisms." },
+  { title: "What is osmosis?", slug: "osmosis", categorySlug: "biology", keyIdea: "Osmosis is the movement of water across a semipermeable membrane toward higher solute concentration." },
+  { title: "What is diffusion?", slug: "diffusion", categorySlug: "biology", keyIdea: "Diffusion is the movement of particles from higher concentration to lower concentration." },
+  { title: "What is a function in programming?", slug: "function-in-programming", categorySlug: "programming-basics", keyIdea: "A function is a reusable block of code that can take inputs, perform work, and return an output." },
+  { title: "What is object-oriented programming?", slug: "object-oriented-programming", categorySlug: "computer-science", keyIdea: "Object-oriented programming organizes code around objects that bundle data and behavior." },
+  { title: "What is a class and object?", slug: "class-and-object", categorySlug: "programming-basics", keyIdea: "A class is a blueprint, while an object is a specific instance created from that blueprint." },
+  { title: "What is a hash table?", slug: "hash-table", categorySlug: "data-structures", keyIdea: "A hash table stores key-value pairs and uses a hash function for fast lookup." },
+  { title: "What is a queue?", slug: "queue-data-structure", categorySlug: "data-structures", keyIdea: "A queue is a first-in, first-out data structure where items leave in the order they arrive." },
+  { title: "What is a binary tree?", slug: "binary-tree", categorySlug: "data-structures", keyIdea: "A binary tree is a hierarchical data structure where each node has at most two children." },
+  { title: "What is depth-first search?", slug: "depth-first-search", categorySlug: "algorithms", keyIdea: "Depth-first search explores as far as possible along one branch before backtracking." },
+  { title: "What is breadth-first search?", slug: "breadth-first-search", categorySlug: "algorithms", keyIdea: "Breadth-first search explores neighbors level by level before moving deeper." },
+  { title: "What is dynamic programming?", slug: "dynamic-programming", categorySlug: "algorithms", keyIdea: "Dynamic programming solves problems by storing results of overlapping subproblems." },
+  { title: "What is recursion stack overflow?", slug: "recursion-stack-overflow", categorySlug: "computer-science", keyIdea: "A recursion stack overflow happens when recursive calls grow too deep and exceed available call stack memory." },
+  { title: "What is logarithmic scale?", slug: "logarithmic-scale", categorySlug: "college-algebra", keyIdea: "A logarithmic scale represents multiplicative changes with equal spacing, which makes very large ranges easier to compare." },
+  { title: "What is a set in math?", slug: "set-in-math", categorySlug: "discrete-math", keyIdea: "A set is a collection of distinct objects, often used to describe membership, unions, intersections, and complements." },
+  { title: "What is a truth table?", slug: "truth-table", categorySlug: "discrete-math", keyIdea: "A truth table lists every possible truth value combination for logical statements." },
+  { title: "What is a logical implication?", slug: "logical-implication", categorySlug: "discrete-math", keyIdea: "A logical implication is a statement of the form if P then Q, and it is false only when P is true and Q is false.", formula: "P\\to Q" },
+  { title: "What is the distance formula?", slug: "distance-formula", categorySlug: "geometry", keyIdea: "The distance formula finds the straight-line distance between two points in the coordinate plane.", formula: "d=\\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}" },
+  { title: "What is the midpoint formula?", slug: "midpoint-formula", categorySlug: "geometry", keyIdea: "The midpoint formula finds the point halfway between two coordinate points.", formula: "M=\\left(\\frac{x_1+x_2}{2},\\frac{y_1+y_2}{2}\\right)" },
+  { title: "How do you find area and perimeter?", slug: "area-and-perimeter", categorySlug: "geometry", keyIdea: "Area measures surface covered, while perimeter measures distance around a shape." },
+  { title: "How do you graph a parabola?", slug: "graph-a-parabola", categorySlug: "graphing", keyIdea: "Graphing a parabola usually means finding its vertex, axis of symmetry, intercepts, and opening direction." },
+  { title: "How do you find x-intercepts and y-intercepts?", slug: "x-intercepts-and-y-intercepts", categorySlug: "graphing", keyIdea: "X-intercepts occur where y equals zero, and y-intercepts occur where x equals zero." },
+  { title: "How do you read a graph?", slug: "read-a-graph", categorySlug: "graphing", keyIdea: "Reading a graph means interpreting axes, scales, units, trends, and key points accurately." },
+  { title: "What is a directional derivative?", slug: "directional-derivative", categorySlug: "calculus-3", keyIdea: "A directional derivative measures how a multivariable function changes in a chosen direction." },
+  { title: "What is a gradient vector?", slug: "gradient-vector", categorySlug: "calculus-3", keyIdea: "The gradient vector points in the direction of greatest increase and contains all first partial derivatives." },
+  { title: "What is thermal equilibrium?", slug: "thermal-equilibrium", categorySlug: "thermodynamics", keyIdea: "Thermal equilibrium occurs when objects in contact no longer exchange net heat because they are at the same temperature." },
+  { title: "What is specific heat?", slug: "specific-heat", categorySlug: "thermodynamics", keyIdea: "Specific heat is the energy needed to raise one unit mass of a substance by one degree.", formula: "q=mc\\Delta T" },
+  { title: "What is the second law of thermodynamics?", slug: "second-law-of-thermodynamics", categorySlug: "thermodynamics", keyIdea: "The second law of thermodynamics says entropy of an isolated system tends to increase." },
+  { title: "What is an isothermal process?", slug: "isothermal-process", categorySlug: "thermodynamics", keyIdea: "An isothermal process happens at constant temperature, often involving gas expansion or compression." },
+  { title: "What is refraction?", slug: "refraction", categorySlug: "waves-and-optics", keyIdea: "Refraction is the bending of a wave when it enters a new medium and changes speed." },
+  { title: "What is Snell's law?", slug: "snells-law", categorySlug: "waves-and-optics", keyIdea: "Snell's law relates the angles and refractive indices when light passes between media.", formula: "n_1\\sin\\theta_1=n_2\\sin\\theta_2" },
+  { title: "What is an alkane, alkene, and alkyne?", slug: "alkane-alkene-alkyne", categorySlug: "organic-chemistry", keyIdea: "Alkanes, alkenes, and alkynes are hydrocarbons classified by single, double, or triple carbon-carbon bonds." },
+  { title: "What is resonance in organic chemistry?", slug: "resonance-organic-chemistry", categorySlug: "organic-chemistry", keyIdea: "Resonance describes electron delocalization using multiple valid Lewis structures." },
+  { title: "What is chirality in organic chemistry?", slug: "chirality", categorySlug: "organic-chemistry", keyIdea: "Chirality describes molecules that are non-superimposable mirror images, often due to a stereocenter." },
+  { title: "What is nucleophilic substitution?", slug: "nucleophilic-substitution", categorySlug: "organic-chemistry", keyIdea: "Nucleophilic substitution replaces one group with a nucleophile through mechanisms such as SN1 or SN2." },
+  { title: "What is the cell membrane?", slug: "cell-membrane", categorySlug: "cell-biology", keyIdea: "The cell membrane is a selectively permeable boundary that controls what enters and leaves the cell." },
+  { title: "What do mitochondria do?", slug: "mitochondria-function", categorySlug: "cell-biology", keyIdea: "Mitochondria help produce ATP, the usable energy currency for many cellular processes." },
+  { title: "What is passive vs active transport?", slug: "passive-vs-active-transport", categorySlug: "cell-biology", keyIdea: "Passive transport moves substances down a concentration gradient, while active transport requires energy to move against the gradient." },
+  { title: "What is pseudocode?", slug: "pseudocode", categorySlug: "computer-science", keyIdea: "Pseudocode is an informal way to describe an algorithm without committing to a specific programming language." },
+  { title: "What is a compiler?", slug: "compiler", categorySlug: "computer-science", keyIdea: "A compiler translates source code into another form, often machine code or bytecode, before execution." },
+  { title: "What is a loop in programming?", slug: "loop-in-programming", categorySlug: "programming-basics", keyIdea: "A loop repeats a block of code while a condition is true or for a specified number of times." },
+  { title: "What is an if statement?", slug: "if-statement", categorySlug: "programming-basics", keyIdea: "An if statement lets a program choose whether to run code based on a condition." },
+  { title: "What is mechanical advantage?", slug: "mechanical-advantage", categorySlug: "engineering", keyIdea: "Mechanical advantage compares output force to input force in a machine or tool." },
+  { title: "What is factor of safety?", slug: "factor-of-safety", categorySlug: "engineering", keyIdea: "Factor of safety compares the strength of a system to the expected load to reduce failure risk." },
+  { title: "What is a bending moment?", slug: "bending-moment", categorySlug: "engineering", keyIdea: "A bending moment measures the tendency of forces to bend a beam or structural element." },
+  { title: "What is engineering design process?", slug: "engineering-design-process", categorySlug: "engineering", keyIdea: "The engineering design process is an iterative method for defining problems, testing solutions, and improving designs." },
+  { title: "How do you write a lab report introduction?", slug: "lab-report-introduction", categorySlug: "lab-reports", keyIdea: "A lab report introduction explains the scientific background, purpose, and hypothesis of the experiment." },
+  { title: "How do you write a lab report conclusion?", slug: "lab-report-conclusion", categorySlug: "lab-reports", keyIdea: "A lab report conclusion summarizes the evidence, answers the lab question, and explains sources of uncertainty." },
+  { title: "How do you present data in a lab report?", slug: "present-data-in-lab-report", categorySlug: "lab-reports", keyIdea: "Lab report data should be organized in clear tables or figures with units, labels, and enough context to interpret results." },
+  { title: "How do you identify sources of error in a lab report?", slug: "sources-of-error-lab-report", categorySlug: "lab-reports", keyIdea: "Sources of error explain realistic limitations in measurement, procedure, equipment, or assumptions." },
+  { title: "What is stress vs strain?", slug: "stress-vs-strain", categorySlug: "materials-science", keyIdea: "Stress measures internal force per area, while strain measures deformation relative to original size.", formula: "\\sigma=\\frac{F}{A}" },
+  { title: "What is Young's modulus?", slug: "youngs-modulus", categorySlug: "materials-science", keyIdea: "Young's modulus measures stiffness by comparing stress to strain in the elastic region.", formula: "E=\\frac{\\sigma}{\\epsilon}" },
+  { title: "What is ductility?", slug: "ductility", categorySlug: "materials-science", keyIdea: "Ductility is a material's ability to deform plastically before breaking." },
+  { title: "What is hardness in materials science?", slug: "hardness-materials-science", categorySlug: "materials-science", keyIdea: "Hardness measures resistance to indentation, scratching, or localized deformation." },
+  { title: "How do you write a scientific abstract?", slug: "scientific-abstract", categorySlug: "scientific-writing", keyIdea: "A scientific abstract briefly summarizes purpose, methods, results, and conclusion." },
+  { title: "How do you write a results section?", slug: "results-section", categorySlug: "scientific-writing", keyIdea: "A results section reports findings clearly without overexplaining interpretation." },
+  { title: "How do you write a discussion section?", slug: "discussion-section", categorySlug: "scientific-writing", keyIdea: "A discussion section interprets results, connects them to the question, and explains limitations." },
+  { title: "How do you cite sources in a lab report?", slug: "cite-sources-in-lab-report", categorySlug: "scientific-writing", keyIdea: "Citing sources in a lab report credits background information, methods, and outside data using the required citation style." },
+  { title: "When should you use a bar chart vs line graph?", slug: "bar-chart-vs-line-graph", categorySlug: "data-visualization", keyIdea: "Bar charts compare categories, while line graphs show change over a continuous variable such as time." },
+  { title: "How do you label a scientific graph correctly?", slug: "label-scientific-graph", categorySlug: "data-visualization", keyIdea: "A scientific graph needs clear axis labels, units, title or caption, and readable scale choices." },
+  { title: "What makes a graph misleading?", slug: "misleading-graph", categorySlug: "data-visualization", keyIdea: "A graph can mislead through distorted scales, missing context, poor labels, or selective data." },
+  { title: "Common mistakes when solving linear equations", slug: "linear-equation-mistakes", categorySlug: "algebra", keyIdea: "Most linear equation mistakes come from sign errors, skipped distribution, or not applying the same operation to both sides." },
+  { title: "How do you solve word problems with equations?", slug: "word-problems-with-equations", categorySlug: "algebra", keyIdea: "Equation word problems become easier when you define the unknown, translate phrases into operations, and check the answer in context." },
+  { title: "What is the difference between an expression and an equation?", slug: "expression-vs-equation", categorySlug: "algebra", keyIdea: "An expression represents a value, while an equation states that two expressions are equal." },
+  { title: "How do you solve equations with fractions?", slug: "solve-equations-with-fractions", categorySlug: "algebra", keyIdea: "Equations with fractions are often simplified by multiplying every term by the least common denominator." },
+  { title: "How do you find the domain of a function?", slug: "domain-of-a-function", categorySlug: "college-algebra", keyIdea: "The domain is the set of input values that make a function defined." },
+  { title: "How do you find the range of a function?", slug: "range-of-a-function", categorySlug: "college-algebra", keyIdea: "The range is the set of output values a function can produce." },
+  { title: "What are zeros of a polynomial?", slug: "zeros-of-a-polynomial", categorySlug: "college-algebra", keyIdea: "Zeros of a polynomial are input values that make the polynomial equal zero." },
+  { title: "How do you use synthetic division?", slug: "synthetic-division", categorySlug: "college-algebra", keyIdea: "Synthetic division is a shortcut for dividing polynomials by linear factors." },
+  { title: "What is end behavior of a polynomial?", slug: "polynomial-end-behavior", categorySlug: "college-algebra", keyIdea: "End behavior describes how a polynomial acts as x becomes very large positive or very large negative." },
+  { title: "How do you solve radical equations?", slug: "solve-radical-equations", categorySlug: "college-algebra", keyIdea: "Radical equations are solved by isolating the radical, raising both sides to a power, and checking for extraneous solutions." },
+  { title: "Common mistakes with logarithms", slug: "logarithm-mistakes", categorySlug: "college-algebra", keyIdea: "Common logarithm mistakes include distributing logs over sums and forgetting domain restrictions." },
+  { title: "What is exponential growth and decay?", slug: "exponential-growth-and-decay", categorySlug: "precalculus", keyIdea: "Exponential growth and decay model quantities that change by a constant percentage over equal intervals." },
+  { title: "How do you graph exponential functions?", slug: "graph-exponential-functions", categorySlug: "precalculus", keyIdea: "Graphing exponential functions involves identifying the initial value, growth or decay factor, and horizontal asymptote." },
+  { title: "How do you graph logarithmic functions?", slug: "graph-logarithmic-functions", categorySlug: "precalculus", keyIdea: "Logarithmic graphs are inverses of exponential graphs and often have vertical asymptotes." },
+  { title: "Common mistakes with the unit circle", slug: "unit-circle-mistakes", categorySlug: "trigonometry", keyIdea: "Unit circle mistakes often come from mixing up coordinates, signs, radians, and reference angles." },
+  { title: "How do reference angles work?", slug: "reference-angles", categorySlug: "trigonometry", keyIdea: "A reference angle is the acute angle a terminal side makes with the x-axis." },
+  { title: "How do you solve right triangle word problems?", slug: "right-triangle-word-problems", categorySlug: "trigonometry", keyIdea: "Right triangle word problems use trig ratios after identifying the angle, opposite side, adjacent side, and hypotenuse." },
+  { title: "Common mistakes with the chain rule", slug: "chain-rule-mistakes", categorySlug: "calculus", keyIdea: "Chain rule mistakes usually happen when students forget to multiply by the derivative of the inside function." },
+  { title: "Common mistakes with integration by parts", slug: "integration-by-parts-mistakes", categorySlug: "calculus-2", keyIdea: "Integration by parts mistakes often involve poor u choices, sign errors, and forgetting the remaining integral." },
+  { title: "What is a tangent plane?", slug: "tangent-plane", categorySlug: "calculus-3", keyIdea: "A tangent plane approximates a surface near a point using partial derivatives." },
+  { title: "What is a line integral?", slug: "line-integral", categorySlug: "calculus-3", keyIdea: "A line integral accumulates a quantity along a curve rather than over an interval or region." },
+  { title: "What is a vector field?", slug: "vector-field", categorySlug: "calculus-3", keyIdea: "A vector field assigns a vector to each point in space or the plane." },
+  { title: "How do separable differential equations work?", slug: "separable-differential-equations", categorySlug: "differential-equations", keyIdea: "Separable differential equations can be rearranged so each variable appears on its own side." },
+  { title: "What is exponential growth in differential equations?", slug: "exponential-growth-differential-equations", categorySlug: "differential-equations", keyIdea: "Exponential growth models arise when a rate of change is proportional to the current amount." },
+  { title: "What is a slope field?", slug: "slope-field", categorySlug: "differential-equations", keyIdea: "A slope field visualizes a differential equation by drawing tiny line segments with the local solution slope." },
+  { title: "What is the trace of a matrix?", slug: "trace-of-a-matrix", categorySlug: "linear-algebra", keyIdea: "The trace of a square matrix is the sum of its diagonal entries." },
+  { title: "What is the rank of a matrix?", slug: "rank-of-a-matrix", categorySlug: "linear-algebra", keyIdea: "Matrix rank measures the number of independent rows or columns." },
+  { title: "What is a basis in linear algebra?", slug: "basis-in-linear-algebra", categorySlug: "linear-algebra", keyIdea: "A basis is a set of independent vectors that spans a vector space." },
+  { title: "How do you calculate sample mean?", slug: "sample-mean", categorySlug: "statistics", keyIdea: "The sample mean is the sum of observed values divided by the number of observations." },
+  { title: "What is an outlier?", slug: "outlier", categorySlug: "statistics", keyIdea: "An outlier is a data value that is unusually far from the rest of the data." },
+  { title: "What is p-value in statistics?", slug: "p-value", categorySlug: "statistics", keyIdea: "A p-value measures how unusual the observed data would be if the null hypothesis were true." },
+  { title: "What is independent probability?", slug: "independent-probability", categorySlug: "probability", keyIdea: "Independent events do not change each other's probabilities." },
+  { title: "What is the complement rule in probability?", slug: "complement-rule-probability", categorySlug: "probability", keyIdea: "The complement rule finds a probability by subtracting the opposite event from one.", formula: "P(A^c)=1-P(A)" },
+  { title: "What is the addition rule in probability?", slug: "addition-rule-probability", categorySlug: "probability", keyIdea: "The addition rule finds the probability that one event or another event occurs." },
+  { title: "What is a graph in discrete math?", slug: "graph-in-discrete-math", categorySlug: "discrete-math", keyIdea: "A graph in discrete math is a set of vertices connected by edges." },
+  { title: "What is combinatorics?", slug: "combinatorics", categorySlug: "discrete-math", keyIdea: "Combinatorics studies counting, arrangements, selections, and discrete structures." },
+  { title: "What is modular arithmetic?", slug: "modular-arithmetic", categorySlug: "discrete-math", keyIdea: "Modular arithmetic studies remainders after division by a fixed number." },
+  { title: "How do two-column geometry proofs work?", slug: "two-column-geometry-proofs", categorySlug: "geometry", keyIdea: "Two-column proofs pair mathematical statements with reasons that justify each step." },
+  { title: "What is similarity in geometry?", slug: "similarity-in-geometry", categorySlug: "geometry", keyIdea: "Similar figures have the same shape with proportional side lengths and equal corresponding angles." },
+  { title: "What is the Pythagorean theorem?", slug: "pythagorean-theorem", categorySlug: "geometry", keyIdea: "The Pythagorean theorem relates the side lengths of a right triangle.", formula: "a^2+b^2=c^2" },
+  { title: "How do you choose the right graph for data?", slug: "choose-the-right-graph", categorySlug: "graphing", keyIdea: "Choosing the right graph depends on whether the data is categorical, numerical, paired, or time-based." },
+  { title: "What is a scatter plot used for?", slug: "scatter-plot", categorySlug: "graphing", keyIdea: "A scatter plot shows relationships between two numerical variables." },
+  { title: "How do you graph piecewise functions?", slug: "graph-piecewise-functions", categorySlug: "graphing", keyIdea: "Piecewise functions are graphed by applying each formula only on its assigned interval." },
+  { title: "What is Newton's third law?", slug: "newtons-third-law", categorySlug: "physics", keyIdea: "Newton's third law says forces come in equal and opposite interaction pairs." },
+  { title: "What is pressure in physics?", slug: "pressure-in-physics", categorySlug: "physics", keyIdea: "Pressure is force spread over an area.", formula: "P=\\frac{F}{A}" },
+  { title: "What is density?", slug: "density", categorySlug: "physics", keyIdea: "Density measures mass per unit volume.", formula: "\\rho=\\frac{m}{V}" },
+  { title: "What is conservation of momentum?", slug: "conservation-of-momentum", categorySlug: "mechanics", keyIdea: "Conservation of momentum says total momentum stays constant when no external net force acts." },
+  { title: "What is electric force?", slug: "electric-force", categorySlug: "electricity-and-magnetism", keyIdea: "Electric force is the attraction or repulsion between charged objects." },
+  { title: "What is Kirchhoff's current law?", slug: "kirchhoffs-current-law", categorySlug: "circuits", keyIdea: "Kirchhoff's current law says total current entering a junction equals total current leaving it." },
+  { title: "What is Kirchhoff's voltage law?", slug: "kirchhoffs-voltage-law", categorySlug: "circuits", keyIdea: "Kirchhoff's voltage law says voltage changes around a closed loop add to zero." },
+  { title: "What is equivalent resistance?", slug: "equivalent-resistance", categorySlug: "circuits", keyIdea: "Equivalent resistance replaces a group of resistors with one resistor that has the same overall effect." },
+  { title: "How do you analyze a simple DC circuit?", slug: "analyze-simple-dc-circuit", categorySlug: "circuits", keyIdea: "Simple DC circuit analysis uses Ohm's law, equivalent resistance, and Kirchhoff's laws." },
+  { title: "What is the difference between voltage, current, and resistance?", slug: "voltage-current-resistance", categorySlug: "circuits", keyIdea: "Voltage pushes charge, current is charge flow, and resistance opposes that flow." },
+  { title: "What are the types of chemical reactions?", slug: "types-of-chemical-reactions", categorySlug: "chemistry", keyIdea: "Common reaction types include synthesis, decomposition, single replacement, double replacement, combustion, and acid-base reactions." },
+  { title: "What is activation energy?", slug: "activation-energy", categorySlug: "chemistry", keyIdea: "Activation energy is the minimum energy needed for a reaction to begin." },
+  { title: "What is Le Chatelier's principle?", slug: "le-chateliers-principle", categorySlug: "chemistry", keyIdea: "Le Chatelier's principle predicts how an equilibrium system shifts when stressed." },
+  { title: "How do you calculate percent yield?", slug: "percent-yield", categorySlug: "general-chemistry", keyIdea: "Percent yield compares actual product to theoretical product.", formula: "\\text{percent yield}=\\frac{\\text{actual yield}}{\\text{theoretical yield}}\\cdot100\\%" },
+  { title: "What is empirical formula?", slug: "empirical-formula", categorySlug: "general-chemistry", keyIdea: "An empirical formula gives the simplest whole-number ratio of atoms in a compound." },
+  { title: "What is Avogadro's number?", slug: "avogadros-number", categorySlug: "general-chemistry", keyIdea: "Avogadro's number counts particles in one mole.", formula: "6.022\\times10^{23}" },
+  { title: "What is SN1 vs SN2?", slug: "sn1-vs-sn2", categorySlug: "organic-chemistry", keyIdea: "SN1 and SN2 are substitution mechanisms that differ in rate law, intermediates, stereochemistry, and substrate preference." },
+  { title: "What is electrophilic addition?", slug: "electrophilic-addition", categorySlug: "organic-chemistry", keyIdea: "Electrophilic addition adds atoms across a double or triple bond after attack by an electrophile." },
+  { title: "What is an alcohol functional group?", slug: "alcohol-functional-group", categorySlug: "organic-chemistry", keyIdea: "An alcohol contains a hydroxyl group bonded to a carbon atom." },
+  { title: "What is the central dogma of biology?", slug: "central-dogma-biology", categorySlug: "biology", keyIdea: "The central dogma describes information flow from DNA to RNA to protein." },
+  { title: "What is transcription in biology?", slug: "transcription-in-biology", categorySlug: "biology", keyIdea: "Transcription copies genetic information from DNA into RNA." },
+  { title: "What is translation in biology?", slug: "translation-in-biology", categorySlug: "biology", keyIdea: "Translation uses mRNA instructions to build a protein from amino acids." },
+  { title: "What is the function of ribosomes?", slug: "ribosome-function", categorySlug: "cell-biology", keyIdea: "Ribosomes build proteins by linking amino acids according to mRNA instructions." },
+  { title: "What is the difference between prokaryotic and eukaryotic cells?", slug: "prokaryotic-vs-eukaryotic-cells", categorySlug: "cell-biology", keyIdea: "Prokaryotic cells lack a nucleus, while eukaryotic cells contain a nucleus and membrane-bound organelles." },
+  { title: "What is cell signaling?", slug: "cell-signaling", categorySlug: "cell-biology", keyIdea: "Cell signaling allows cells to communicate through molecules, receptors, and response pathways." },
+  { title: "What is Big O of nested loops?", slug: "big-o-nested-loops", categorySlug: "algorithms", keyIdea: "Nested loops often multiply running times, so two loops over n items commonly produce quadratic time." },
+  { title: "What is binary search?", slug: "binary-search", categorySlug: "algorithms", keyIdea: "Binary search repeatedly halves a sorted search space to find a target efficiently." },
+  { title: "What is greedy algorithm?", slug: "greedy-algorithm", categorySlug: "algorithms", keyIdea: "A greedy algorithm makes the best local choice at each step and works when local choices lead to a global optimum." },
+  { title: "What is an if-else statement?", slug: "if-else-statement", categorySlug: "programming-basics", keyIdea: "An if-else statement chooses between two code paths based on whether a condition is true or false." },
+  { title: "What is a boolean?", slug: "boolean", categorySlug: "programming-basics", keyIdea: "A boolean is a true-or-false value used in conditions and logic." },
+  { title: "What is a syntax error vs logic error?", slug: "syntax-error-vs-logic-error", categorySlug: "programming-basics", keyIdea: "A syntax error breaks language rules, while a logic error runs but produces the wrong behavior." },
+  { title: "What is an API in computer science?", slug: "api-in-computer-science", categorySlug: "computer-science", keyIdea: "An API defines how software components request and exchange information." },
+  { title: "What is debugging?", slug: "debugging", categorySlug: "computer-science", keyIdea: "Debugging is the process of finding, understanding, and fixing errors in code." },
+  { title: "What is memory in programming?", slug: "memory-in-programming", categorySlug: "computer-science", keyIdea: "Memory in programming stores data while a program runs, including variables, objects, and call stack information." },
+  { title: "What is a priority queue?", slug: "priority-queue", categorySlug: "data-structures", keyIdea: "A priority queue removes items according to priority rather than arrival order." },
+  { title: "What is a heap data structure?", slug: "heap-data-structure", categorySlug: "data-structures", keyIdea: "A heap is a tree-based structure that keeps the highest or lowest priority item easy to access." },
+  { title: "What is a graph data structure?", slug: "graph-data-structure", categorySlug: "data-structures", keyIdea: "A graph data structure stores nodes and connections, making it useful for networks and relationships." },
+  { title: "What is shear stress?", slug: "shear-stress", categorySlug: "engineering", keyIdea: "Shear stress measures internal force per area acting parallel to a surface." },
+  { title: "What is load in engineering?", slug: "load-in-engineering", categorySlug: "engineering", keyIdea: "A load is a force or demand applied to a structure, component, or system." },
+  { title: "What is fatigue failure?", slug: "fatigue-failure", categorySlug: "engineering", keyIdea: "Fatigue failure happens when repeated loading creates cracks and eventual breakage below the material's static strength." },
+  { title: "What is brittleness?", slug: "brittleness", categorySlug: "materials-science", keyIdea: "Brittleness is a material's tendency to fracture with little plastic deformation." },
+  { title: "What is elasticity in materials?", slug: "elasticity-materials-science", categorySlug: "materials-science", keyIdea: "Elasticity is a material's ability to return to its original shape after deformation." },
+  { title: "What is toughness in materials science?", slug: "toughness-materials-science", categorySlug: "materials-science", keyIdea: "Toughness measures how much energy a material can absorb before fracturing." },
+  { title: "How do you write a methods section?", slug: "methods-section", categorySlug: "lab-reports", keyIdea: "A methods section explains the procedure clearly enough for another person to reproduce the experiment." },
+  { title: "How do you format tables in a lab report?", slug: "format-tables-lab-report", categorySlug: "lab-reports", keyIdea: "Lab report tables should include clear labels, units, consistent significant figures, and concise captions." },
+  { title: "What do professors look for in a lab report?", slug: "lab-report-grading-expectations", categorySlug: "lab-reports", keyIdea: "Professors usually look for clear purpose, reproducible methods, accurate data, thoughtful analysis, and honest limitations." },
+  { title: "How do you structure a scientific paper?", slug: "structure-scientific-paper", categorySlug: "scientific-writing", keyIdea: "Scientific papers usually follow an introduction, methods, results, discussion, and conclusion structure." },
+  { title: "Common mistakes in scientific writing", slug: "scientific-writing-mistakes", categorySlug: "scientific-writing", keyIdea: "Scientific writing mistakes include vague claims, missing evidence, unclear figures, and mixing results with interpretation." },
+  { title: "How do you write a research question?", slug: "write-research-question", categorySlug: "scientific-writing", keyIdea: "A strong research question is focused, testable, and connected to measurable evidence." },
+  { title: "What is a box plot?", slug: "box-plot", categorySlug: "data-visualization", keyIdea: "A box plot summarizes a distribution using the median, quartiles, and potential outliers." },
+  { title: "How do you interpret a histogram?", slug: "interpret-histogram", categorySlug: "data-visualization", keyIdea: "A histogram shows the shape, center, spread, and frequency pattern of numerical data." },
+  { title: "What is a residual plot?", slug: "residual-plot", categorySlug: "data-visualization", keyIdea: "A residual plot helps evaluate whether a regression model fits data well." },
+  { title: "What is heat capacity?", slug: "heat-capacity", categorySlug: "thermodynamics", keyIdea: "Heat capacity is the amount of heat needed to raise an object's temperature by one degree." },
+  { title: "What is adiabatic process?", slug: "adiabatic-process", categorySlug: "thermodynamics", keyIdea: "An adiabatic process happens with no heat transfer into or out of the system." },
+  { title: "What is thermal expansion?", slug: "thermal-expansion", categorySlug: "thermodynamics", keyIdea: "Thermal expansion is the tendency of materials to change size as temperature changes." },
+  { title: "What is interference in waves?", slug: "wave-interference", categorySlug: "waves-and-optics", keyIdea: "Wave interference happens when overlapping waves combine to make larger, smaller, or canceled waves." },
+  { title: "What is diffraction?", slug: "diffraction", categorySlug: "waves-and-optics", keyIdea: "Diffraction is the bending or spreading of waves around openings and obstacles." },
+  { title: "What is the Doppler effect?", slug: "doppler-effect", categorySlug: "waves-and-optics", keyIdea: "The Doppler effect is the observed change in frequency when a source and observer move relative to each other." },
+  { title: "What is merge sort?", slug: "merge-sort", categorySlug: "algorithms", keyIdea: "Merge sort divides a list, sorts the pieces, and merges them back together in order." },
+  { title: "What is quicksort?", slug: "quicksort", categorySlug: "algorithms", keyIdea: "Quicksort partitions data around a pivot and recursively sorts the smaller pieces." },
+  { title: "What is algorithm time complexity?", slug: "algorithm-time-complexity", categorySlug: "algorithms", keyIdea: "Time complexity describes how running time grows as input size increases." },
+  { title: "Common mistakes with Big O notation", slug: "big-o-mistakes", categorySlug: "algorithms", keyIdea: "Big O mistakes often involve ignoring nested work, confusing constants with growth, or analyzing only best cases." },
+  { title: "What is natural selection?", slug: "natural-selection", categorySlug: "biology", keyIdea: "Natural selection is the process where traits that improve survival or reproduction become more common over generations." },
+  { title: "What is protein synthesis?", slug: "protein-synthesis", categorySlug: "biology", keyIdea: "Protein synthesis uses transcription and translation to build proteins from genetic instructions." },
+  { title: "What is homeostasis?", slug: "homeostasis", categorySlug: "biology", keyIdea: "Homeostasis is the maintenance of stable internal conditions despite external changes." },
+  { title: "What is an enzyme-substrate complex?", slug: "enzyme-substrate-complex", categorySlug: "biology", keyIdea: "An enzyme-substrate complex forms when a substrate binds to an enzyme's active site." },
+  { title: "What is a double integral over a region?", slug: "double-integral-over-region", categorySlug: "calculus-3", keyIdea: "A double integral over a region accumulates a quantity across a two-dimensional area." },
+  { title: "What is a triple integral?", slug: "triple-integral", categorySlug: "calculus-3", keyIdea: "A triple integral accumulates a quantity throughout a three-dimensional region." },
+  { title: "What is divergence in vector calculus?", slug: "divergence-vector-calculus", categorySlug: "calculus-3", keyIdea: "Divergence measures how much a vector field spreads out from a point." },
+  { title: "What is curl in vector calculus?", slug: "curl-vector-calculus", categorySlug: "calculus-3", keyIdea: "Curl measures local rotation in a vector field." },
+  { title: "What is the nucleus of a cell?", slug: "cell-nucleus", categorySlug: "cell-biology", keyIdea: "The nucleus stores DNA and helps control cell activities by regulating gene expression." },
+  { title: "What is the endoplasmic reticulum?", slug: "endoplasmic-reticulum", categorySlug: "cell-biology", keyIdea: "The endoplasmic reticulum helps synthesize, fold, and transport proteins and lipids." },
+  { title: "What is the Golgi apparatus?", slug: "golgi-apparatus", categorySlug: "cell-biology", keyIdea: "The Golgi apparatus modifies, sorts, and packages molecules for transport." },
+  { title: "What is cell cycle regulation?", slug: "cell-cycle-regulation", categorySlug: "cell-biology", keyIdea: "Cell cycle regulation controls when cells grow, copy DNA, and divide." },
+  { title: "What is source code?", slug: "source-code", categorySlug: "computer-science", keyIdea: "Source code is human-readable program text written in a programming language." },
+  { title: "What is an operating system?", slug: "operating-system", categorySlug: "computer-science", keyIdea: "An operating system manages hardware resources and provides services for programs." },
+  { title: "What is abstraction in computer science?", slug: "abstraction-computer-science", categorySlug: "computer-science", keyIdea: "Abstraction hides unnecessary details so programmers can work with simpler models." },
+  { title: "What is a runtime error?", slug: "runtime-error", categorySlug: "computer-science", keyIdea: "A runtime error happens while a program is running, often because of invalid operations or unexpected data." },
+  { title: "What is a trie data structure?", slug: "trie-data-structure", categorySlug: "data-structures", keyIdea: "A trie stores strings by sharing prefixes across linked nodes." },
+  { title: "What is a balanced binary tree?", slug: "balanced-binary-tree", categorySlug: "data-structures", keyIdea: "A balanced binary tree keeps height controlled so search, insertion, and deletion stay efficient." },
+  { title: "What is a set data structure?", slug: "set-data-structure", categorySlug: "data-structures", keyIdea: "A set data structure stores unique values and supports membership checks." },
+  { title: "What is a dictionary in programming?", slug: "dictionary-data-structure", categorySlug: "data-structures", keyIdea: "A dictionary stores key-value pairs for fast lookup by key." },
+  { title: "How do you choose chart colors?", slug: "choose-chart-colors", categorySlug: "data-visualization", keyIdea: "Good chart colors improve contrast, avoid confusion, and support accessibility." },
+  { title: "What is chart junk?", slug: "chart-junk", categorySlug: "data-visualization", keyIdea: "Chart junk is decorative visual clutter that distracts from the data." },
+  { title: "How do you show uncertainty in graphs?", slug: "show-uncertainty-in-graphs", categorySlug: "data-visualization", keyIdea: "Uncertainty can be shown with error bars, confidence bands, intervals, or clear annotations." },
+  { title: "What is a heat map?", slug: "heat-map", categorySlug: "data-visualization", keyIdea: "A heat map uses color intensity to represent numerical values across a grid or matrix." },
+  { title: "What is Euler's method?", slug: "eulers-method", categorySlug: "differential-equations", keyIdea: "Euler's method approximates solutions to differential equations using small tangent-line steps." },
+  { title: "What is a second-order differential equation?", slug: "second-order-differential-equation", categorySlug: "differential-equations", keyIdea: "A second-order differential equation contains a second derivative and often models acceleration or oscillation." },
+  { title: "What is a characteristic equation?", slug: "characteristic-equation-differential-equations", categorySlug: "differential-equations", keyIdea: "A characteristic equation helps solve linear constant-coefficient differential equations." },
+  { title: "What is an initial value problem?", slug: "initial-value-problem", categorySlug: "differential-equations", keyIdea: "An initial value problem combines a differential equation with starting conditions that select one solution." },
+  { title: "What is a Venn diagram?", slug: "venn-diagram", categorySlug: "discrete-math", keyIdea: "A Venn diagram visualizes relationships between sets using overlapping regions." },
+  { title: "What is De Morgan's law?", slug: "de-morgans-law", categorySlug: "discrete-math", keyIdea: "De Morgan's laws describe how negation distributes over AND and OR statements." },
+  { title: "What is a bijection?", slug: "bijection", categorySlug: "discrete-math", keyIdea: "A bijection pairs each element of one set with exactly one element of another set and vice versa." },
+  { title: "What is a proof by contradiction?", slug: "proof-by-contradiction", categorySlug: "discrete-math", keyIdea: "Proof by contradiction assumes the opposite of a claim and shows that assumption leads to an impossibility." },
+  { title: "What is a truss?", slug: "truss-engineering", categorySlug: "engineering", keyIdea: "A truss is a structure made of connected members that carry loads mainly through tension and compression." },
+  { title: "What is static equilibrium?", slug: "static-equilibrium", categorySlug: "engineering", keyIdea: "Static equilibrium means net force and net torque are both zero." },
+  { title: "What is a free body diagram in engineering?", slug: "engineering-free-body-diagram", categorySlug: "engineering", keyIdea: "Engineering free body diagrams isolate a component and show all external forces and moments." },
+  { title: "What is a design constraint?", slug: "design-constraint", categorySlug: "engineering", keyIdea: "A design constraint is a requirement or limitation that a solution must satisfy." },
+  { title: "What are congruent triangles?", slug: "congruent-triangles", categorySlug: "geometry", keyIdea: "Congruent triangles have the same shape and size, with all corresponding sides and angles equal." },
+  { title: "What is circle geometry?", slug: "circle-geometry", categorySlug: "geometry", keyIdea: "Circle geometry studies chords, arcs, central angles, inscribed angles, tangents, and secants." },
+  { title: "What is surface area?", slug: "surface-area", categorySlug: "geometry", keyIdea: "Surface area measures the total area covering the outside of a three-dimensional object." },
+  { title: "What is volume in geometry?", slug: "volume-in-geometry", categorySlug: "geometry", keyIdea: "Volume measures the amount of three-dimensional space inside a solid." },
+  { title: "How do you graph inequalities?", slug: "graph-inequalities", categorySlug: "graphing", keyIdea: "Graphing inequalities uses boundary lines or curves and shading to show solution regions." },
+  { title: "How do you find slope from a graph?", slug: "find-slope-from-graph", categorySlug: "graphing", keyIdea: "Slope from a graph is found by comparing vertical change to horizontal change between two points." },
+  { title: "What is a residual in graphing?", slug: "residual-in-graphing", categorySlug: "graphing", keyIdea: "A residual is the difference between an observed value and a predicted value." },
+  { title: "How do you graph absolute value functions?", slug: "graph-absolute-value-functions", categorySlug: "graphing", keyIdea: "Absolute value graphs form V-shapes whose vertex and transformations determine position and direction." },
+  { title: "How do you write figure captions for lab reports?", slug: "figure-captions-lab-report", categorySlug: "lab-reports", keyIdea: "A figure caption should identify what is shown, include relevant conditions, and explain enough context to interpret the figure." },
+  { title: "How do you report uncertainty in a lab report?", slug: "report-uncertainty-lab-report", categorySlug: "lab-reports", keyIdea: "Reporting uncertainty means showing measurement limitations, error ranges, and how uncertainty affects conclusions." },
+  { title: "How do you write a hypothesis for a lab report?", slug: "lab-report-hypothesis", categorySlug: "lab-reports", keyIdea: "A lab report hypothesis predicts an outcome based on a scientific reason and should be testable." },
+  { title: "Common mistakes in lab reports", slug: "lab-report-common-mistakes", categorySlug: "lab-reports", keyIdea: "Common lab report mistakes include vague methods, missing units, unsupported claims, and weak error analysis." },
+  { title: "What is a crystal structure?", slug: "crystal-structure", categorySlug: "materials-science", keyIdea: "Crystal structure describes the repeating arrangement of atoms in a solid material." },
+  { title: "What is a phase diagram?", slug: "phase-diagram-materials", categorySlug: "materials-science", keyIdea: "A phase diagram shows which phases are stable under different temperature and composition conditions." },
+  { title: "What is yield strength?", slug: "yield-strength", categorySlug: "materials-science", keyIdea: "Yield strength is the stress at which a material begins permanent deformation." },
+  { title: "What is creep in materials?", slug: "creep-materials-science", categorySlug: "materials-science", keyIdea: "Creep is slow permanent deformation under sustained load, often at high temperature." },
+  { title: "What is an ester?", slug: "ester-functional-group", categorySlug: "organic-chemistry", keyIdea: "An ester is an organic functional group commonly formed from a carboxylic acid and alcohol." },
+  { title: "What is a carboxylic acid?", slug: "carboxylic-acid", categorySlug: "organic-chemistry", keyIdea: "A carboxylic acid contains a carboxyl group and can donate a proton as an acid." },
+  { title: "What is Markovnikov's rule?", slug: "markovnikovs-rule", categorySlug: "organic-chemistry", keyIdea: "Markovnikov's rule predicts where hydrogen adds in certain reactions of asymmetric alkenes." },
+  { title: "What is aromaticity?", slug: "aromaticity", categorySlug: "organic-chemistry", keyIdea: "Aromaticity describes unusually stable cyclic molecules with delocalized pi electrons." },
+  { title: "What is a while loop?", slug: "while-loop", categorySlug: "programming-basics", keyIdea: "A while loop repeats code as long as a condition remains true." },
+  { title: "What is a for loop?", slug: "for-loop", categorySlug: "programming-basics", keyIdea: "A for loop repeats code over a sequence, range, or known number of iterations." },
+  { title: "What is variable scope?", slug: "variable-scope", categorySlug: "programming-basics", keyIdea: "Variable scope determines where a variable can be accessed in a program." },
+  { title: "What is input and output in programming?", slug: "input-and-output-programming", categorySlug: "programming-basics", keyIdea: "Input is information a program receives, while output is information the program produces." },
+  { title: "How do you write a literature review?", slug: "literature-review", categorySlug: "scientific-writing", keyIdea: "A literature review summarizes and connects prior research to explain the background for a question." },
+  { title: "What is passive voice in scientific writing?", slug: "passive-voice-scientific-writing", categorySlug: "scientific-writing", keyIdea: "Passive voice emphasizes the action or result rather than the person performing the action." },
+  { title: "How do you write a clear scientific claim?", slug: "scientific-claim", categorySlug: "scientific-writing", keyIdea: "A clear scientific claim states an interpretation that is specific, testable, and supported by evidence." },
+  { title: "How do you avoid plagiarism in science writing?", slug: "avoid-plagiarism-science-writing", categorySlug: "scientific-writing", keyIdea: "Avoiding plagiarism requires citing sources, paraphrasing accurately, and distinguishing your analysis from borrowed ideas." },
+  { title: "What is the zeroth law of thermodynamics?", slug: "zeroth-law-of-thermodynamics", categorySlug: "thermodynamics", keyIdea: "The zeroth law says that if two systems are each in thermal equilibrium with a third, they are in thermal equilibrium with each other." },
+  { title: "What is entropy change?", slug: "entropy-change", categorySlug: "thermodynamics", keyIdea: "Entropy change measures how energy dispersal or microscopic possibilities change during a process." },
+  { title: "What is a heat engine?", slug: "heat-engine", categorySlug: "thermodynamics", keyIdea: "A heat engine converts thermal energy into work by moving heat from a hot reservoir to a cold reservoir." },
+  { title: "What is efficiency in thermodynamics?", slug: "thermodynamic-efficiency", categorySlug: "thermodynamics", keyIdea: "Thermodynamic efficiency compares useful work output to heat energy input." },
+  { title: "What is a standing wave?", slug: "standing-wave", categorySlug: "waves-and-optics", keyIdea: "A standing wave forms when waves traveling in opposite directions interfere to create fixed nodes and antinodes." },
+  { title: "What is resonance in waves?", slug: "resonance-in-waves", categorySlug: "waves-and-optics", keyIdea: "Resonance occurs when a system is driven near its natural frequency and oscillation amplitude grows." },
+  { title: "What is polarization of light?", slug: "polarization-of-light", categorySlug: "waves-and-optics", keyIdea: "Polarization describes the orientation of light's electric field vibrations." },
+  { title: "What is index of refraction?", slug: "index-of-refraction", categorySlug: "waves-and-optics", keyIdea: "Index of refraction compares the speed of light in vacuum to its speed in a material." },
+  { title: "What is molar mass?", slug: "molar-mass", categorySlug: "general-chemistry", keyIdea: "Molar mass is the mass of one mole of a substance." },
+  { title: "What is dilution in chemistry?", slug: "dilution-in-chemistry", categorySlug: "general-chemistry", keyIdea: "Dilution decreases concentration by adding solvent while keeping moles of solute constant.", formula: "M_1V_1=M_2V_2" },
+  { title: "What is a net ionic equation?", slug: "net-ionic-equation", categorySlug: "general-chemistry", keyIdea: "A net ionic equation shows only the species that actually change during a reaction." },
+  { title: "What is Newton's first law?", slug: "newtons-first-law", categorySlug: "physics", keyIdea: "Newton's first law says an object maintains its motion unless acted on by a net external force." },
+  { title: "What is buoyant force?", slug: "buoyant-force", categorySlug: "physics", keyIdea: "Buoyant force is the upward force a fluid exerts on an object submerged in it." },
+  { title: "What is terminal velocity?", slug: "terminal-velocity", categorySlug: "physics", keyIdea: "Terminal velocity occurs when drag force balances weight and acceleration becomes zero." },
+  { title: "What is Hess's law?", slug: "hesss-law", categorySlug: "chemistry", keyIdea: "Hess's law says total enthalpy change is independent of the path between reactants and products." },
+  { title: "What is reaction rate?", slug: "reaction-rate", categorySlug: "chemistry", keyIdea: "Reaction rate measures how quickly reactants are consumed or products are formed." },
+  { title: "What is acid-base titration?", slug: "acid-base-titration", categorySlug: "chemistry", keyIdea: "Acid-base titration uses a known solution to determine the concentration of an unknown acid or base." },
+  { title: "What is series resistance?", slug: "series-resistance", categorySlug: "circuits", keyIdea: "Series resistance adds directly because the same current passes through each resistor." },
+  { title: "What is parallel resistance?", slug: "parallel-resistance", categorySlug: "circuits", keyIdea: "Parallel resistance is less than the smallest branch resistance because current has multiple paths." },
+  { title: "What is a voltage divider?", slug: "voltage-divider", categorySlug: "circuits", keyIdea: "A voltage divider uses resistors in series to produce a smaller output voltage." },
+  { title: "What is absolute value inequality?", slug: "absolute-value-inequality", categorySlug: "algebra", keyIdea: "Absolute value inequalities describe distances from a center point and often split into two cases." },
+  { title: "What is a quadratic word problem?", slug: "quadratic-word-problem", categorySlug: "algebra", keyIdea: "Quadratic word problems model situations where a variable is squared, such as area, projectile height, or revenue." },
+  { title: "How do you solve rational equations?", slug: "solve-rational-equations", categorySlug: "algebra", keyIdea: "Rational equations are solved by clearing denominators while checking for excluded values." },
+  { title: "What is a rational root theorem?", slug: "rational-root-theorem", categorySlug: "college-algebra", keyIdea: "The rational root theorem lists possible rational zeros of a polynomial using factors of the constant and leading coefficient." },
+  { title: "What is a complex number?", slug: "complex-number", categorySlug: "college-algebra", keyIdea: "A complex number has a real part and an imaginary part.", formula: "a+bi" },
+  { title: "How do you graph transformations of parent functions?", slug: "graph-transformations-parent-functions", categorySlug: "precalculus", keyIdea: "Parent function transformations shift, stretch, reflect, or compress a familiar base graph." },
+  { title: "What is a piecewise function?", slug: "piecewise-function", categorySlug: "precalculus", keyIdea: "A piecewise function uses different formulas on different parts of its domain." },
+  { title: "What is the multiplication rule in probability?", slug: "multiplication-rule-probability", categorySlug: "probability", keyIdea: "The multiplication rule finds the probability that multiple events occur together." },
+  { title: "What is a tree diagram in probability?", slug: "tree-diagram-probability", categorySlug: "probability", keyIdea: "A tree diagram organizes multi-step probability outcomes into branches." },
+  { title: "What is interquartile range?", slug: "interquartile-range", categorySlug: "statistics", keyIdea: "Interquartile range measures the spread of the middle half of a data set.", formula: "IQR=Q_3-Q_1" },
+  { title: "What is standard error?", slug: "standard-error", categorySlug: "statistics", keyIdea: "Standard error measures how much a sample statistic varies from sample to sample." },
 ];
 
 const relatedTopicSlugsByCategory: Record<string, string[]> = {
-  geometry: ["unit-circle-explained", "how-to-graph-a-function"],
-  mechanics: ["newtons-second-law", "work-and-energy-basics"],
-  "electricity-and-magnetism": ["work-and-energy-basics", "newtons-second-law"],
-  chemistry: ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
-  "organic-chemistry": ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
-  biology: ["how-to-write-a-lab-report", "mean-vs-median-vs-mode"],
-  "differential-equations": ["derivative-of-x-squared", "integration-by-parts"],
-  "computer-science": ["what-is-a-matrix", "how-to-graph-a-function"],
-  "data-structures": ["what-is-a-matrix", "how-to-graph-a-function"],
-  algorithms: ["how-to-graph-a-function", "mean-vs-median-vs-mode"],
+  geometry: ["graph-linear-equations", "unit-circle-explained", "law-of-sines-and-cosines"],
+  physics: ["speed-vs-velocity", "newtons-second-law", "kinetic-and-potential-energy"],
+  engineering: ["torque", "ohms-law", "series-and-parallel-circuits", "first-law-of-thermodynamics"],
+  "materials-science": ["conduction-convection-radiation", "chemical-equilibrium", "kinetic-and-potential-energy"],
+  "lab-reports": ["mean-vs-median-vs-mode", "standard-deviation", "balance-chemical-equation"],
+  "scientific-writing": ["confidence-interval", "hypothesis-tests", "chemical-equilibrium"],
+  "data-visualization": ["normal-distribution", "z-score", "graph-linear-equations", "graph-sine-and-cosine"],
+  "computer-science": ["variable-in-programming", "big-o-notation", "list-array-stack"],
 };
+
+function categoryNameForSlug(categorySlug: string) {
+  return studyCategories.find((category) => category.slug === categorySlug)?.name ?? "Study Topic";
+}
+
+function buildDescription(title: string, category: string) {
+  return `${title} Learn the core idea, common steps, and how to recognize this ${category.toLowerCase()} concept in homework problems.`;
+}
+
+function buildProblem(title: string) {
+  return title.endsWith("?") ? title : `${title}?`;
+}
+
+function buildContent(topic: StudyTopicSeed, category: string) {
+  const formulaSection = topic.formula
+    ? `
+## Key Formula
+
+$$
+${topic.formula}
+$$
+`
+    : "";
+
+  return `
+## Problem Statement
+
+${buildProblem(topic.title)}
+
+## Step-by-Step Explanation
+
+${topic.keyIdea}
+
+1. Identify what the question is asking. In ${category}, this usually means naming the known quantities, the unknown quantity, and the concept that connects them.
+2. Write the relevant definition, rule, or relationship before substituting numbers or manipulating symbols.
+3. Work one step at a time and keep units, signs, and restrictions visible.
+4. Check whether the answer makes sense in the original context.
+${formulaSection}
+## Final Answer
+
+${topic.keyIdea} The reliable strategy is to start from the definition, apply the correct rule carefully, and then interpret the result in plain language.
+`.trim();
+}
+
+export const studyTopics: StudyTopic[] = topicSeeds.map((topic) => {
+  const category = categoryNameForSlug(topic.categorySlug);
+
+  return {
+    ...topic,
+    category,
+    description: buildDescription(topic.title, category),
+    problem: buildProblem(topic.title),
+    metaDescription: `${topic.title} Clear ${category.toLowerCase()} explanation with step-by-step guidance, key formulas, and student-friendly examples.`,
+    content: buildContent(topic, category),
+  };
+});
 
 export function getCategory(categorySlug: string) {
   return studyCategories.find((category) => category.slug === categorySlug);
